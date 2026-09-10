@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葛佳磊的《高级网页设计》课堂实践</title>
+    <style>
+        :root {
+            --bg-1: #eef4ff;
+            --bg-2: #fdf3ef;
+            --primary: #355cdd;
+            --primary-dark: #213f96;
+            --secondary: #ff8a65;
+            --card: rgba(255, 255, 255, 0.9);
+            --line: #dce6ff;
+            --text: #1a1f2b;
+            --muted: #55607a;
+            --shadow: 0 18px 40px rgba(41, 65, 135, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            color: var(--text);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1120px, 90%);
+            margin: 0 auto;
+            padding: 40px 0 60px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(53, 92, 221, 0.96), rgba(100, 131, 248, 0.9));
+            border-radius: 24px;
+            padding: 42px 42px 30px;
+            box-shadow: var(--shadow);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 220px;
+            height: 220px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 3vw, 3rem);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            margin: 14px 0 0;
+            font-size: 1.08rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .main {
+            margin-top: 26px;
+        }
+
+        .section {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 28px 28px 22px;
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            margin: 0 0 18px;
+            font-size: 1.7rem;
+            color: var(--primary-dark);
+        }
+
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 18px;
+        }
+
+        .module-card,
+        .placeholder-card {
+            display: block;
+            background: linear-gradient(180deg, #ffffff, #f6f9ff);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 20px 18px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 22px rgba(58, 74, 128, 0.06);
+        }
+
+        .module-card:hover,
+        .placeholder-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px rgba(58, 74, 128, 0.12);
+        }
+
+        .module-tag {
+            display: inline-block;
+            font-size: 0.72rem;
+            background: rgba(53, 92, 221, 0.08);
+            color: var(--primary);
+            border: 1px solid rgba(53, 92, 221, 0.12);
+            border-radius: 999px;
+            padding: 6px 10px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .module-card strong,
+        .placeholder-card strong {
+            display: block;
+            font-size: 1.15rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .module-card small,
+        .placeholder-card small {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .placeholder-card {
+            background: linear-gradient(180deg, #fffaf5, #fff);
+            border-style: dashed;
+        }
+
+        .site-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            border-left: 4px solid var(--primary);
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 14px 16px 14px 18px;
+        }
+
+        .site-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e8edff;
+            color: var(--muted);
+        }
+
+        .site-list li:last-child {
+            border-bottom: none;
+        }
+
+        .site-list a {
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .prompt-box {
+            background: #121b2d;
+            color: #edf5ff;
+            border-radius: 16px;
+            padding: 22px 20px;
+            line-height: 1.9;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .prompt-box p {
+            margin: 0;
+        }
+
+        .prompt-box .prompt-title {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: #8dc4ff;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                padding: 30px 22px 24px;
+            }
+
+            .section {
+                padding: 22px 18px 18px;
+            }
+
+            .site-list {
+                padding-left: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="badge">葛佳磊 · 《高级网页设计》</div>
+            <h1>葛佳磊的《高级网页设计》课堂实践</h1>
+            <p class="subtitle">课程目录 · 网页作业汇总 · 学习实践平台</p>
+        </header>
+
+        <main class="main">
+            <section class="section">
+                <h2>课堂目录</h2>
+                <div class="link-grid">
+                    <a class="module-card" href="./html_basic001.html">
+                        <span class="module-tag">HTML基础</span>
+                        <strong>HTML基础</strong>
+                        <small>基础标签与页面结构，适合初学者快速入门网页设计。</small>
+                    </a>
+
+                    <a class="module-card" href="./html_basic001.html">
+                        <span class="module-tag">实践作业</span>
+                        <strong>自我介绍网页</strong>
+                        <small>个人信息展示、表格、列表、表单与链接等元素组合练习。</small>
+                    </a>
+
+                    <div class="placeholder-card">
+                        <span class="module-tag">后续更新</span>
+                        <strong>其余模块</strong>
+                        <small>后续课堂模块将继续补充，敬请期待。</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>本目录下的网页</h2>
+                <ul class="site-list">
+                    <li><a href="./html_basic001.html">html_basic001.html</a> — HTML基础 / 自我介绍网页</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>本提示词</h2>
+                <div class="prompt-box">
+                    <p class="prompt-title">提示词：</p>
+                    <p>创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为王垚的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词。</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
