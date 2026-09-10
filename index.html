@@ -1,20 +1,665 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>万超然的高级网页设计 | 课堂实践</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>张博文的《高级网页设计》课堂实践</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: #ffffff;
+      --panel-soft: #eef3f9;
+      --text: #1b2440;
+      --text-soft: #65738c;
+      --text-muted: #8ca0be;
+      --line: #dce6f7;
+      --blue: #265dff;
+      --blue-dark: #173aa8;
+      --blue-light: #eaf1ff;
+      --green: #58b88d;
+      --green-soft: #dff9ee;
+      --gold: #ffd46a;
+      --pink: #ff7e9a;
+      --shadow: rgba(8, 22, 54, 0.18);
+      --font: "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 70% 12%, rgba(62, 105, 248, 0.25), transparent 20%),
+        radial-gradient(circle at 16% 78%, rgba(56, 195, 159, 0.17), transparent 22%),
+        linear-gradient(135deg, var(--bg), #091a34 78%);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 18px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(#d8e7ff 1px, transparent 1px);
+      background-size: 42px 42px;
+      opacity: 0.45;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1), transparent);
+    }
+
+    .page {
+      width: min(1200px, calc(100vw - 36px));
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 22px;
+      border-radius: 20px 20px 0 0;
+      color: #eef6ff;
+      background: rgba(13, 34, 65, 0.74);
+      border: 1px solid rgba(226, 238, 255, 0.2);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 16px 50px var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 1px;
+      color: #eef7ff;
+    }
+
+    .brand .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      background: rgba(255, 212, 106, 0.08);
+    }
+
+    .topbar nav {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .topbar nav a {
+      color: #dceaff;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      transition: 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .topbar nav a:hover {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      border-color: var(--blue-light);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #eef6ff 0%, #d9eaff 100%);
+      border-radius: 0 0 24px 24px;
+      padding: 50px 42px 32px;
+      box-shadow: 0 32px 90px var(--shadow);
+      border-left: 1px solid rgba(226, 238, 255, 0.95);
+      border-right: 1px solid rgba(226, 238, 255, 0.95);
+      border-bottom: 1px solid rgba(226, 238, 255, 0.95);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(500px, 1.8fr) minmax(260px, 1fr);
+      gap: 30px;
+      align-items: center;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--blue-dark);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: var(--blue-light);
+      border-left: 4px solid var(--blue);
+      border-radius: 4px;
+    }
+
+    h1 {
+      margin: 20px 0 12px;
+      color: var(--text);
+      font-size: clamp(42px, 4vw, 60px);
+      line-height: 1.15;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      max-width: 760px;
+    }
+
+    .subtitle {
+      margin: 0 0 26px;
+      color: var(--text-soft);
+      font-size: 20px;
+      line-height: 1.8;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      min-width: 150px;
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 25px rgba(15, 50, 105, 0.08);
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--blue);
+      font-size: 26px;
+      margin-bottom: 7px;
+    }
+
+    .stat span {
+      color: var(--text-soft);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .teacher-card {
+      background: linear-gradient(160deg, var(--blue-dark), var(--blue));
+      color: var(--panel);
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: 0 24px 50px var(--shadow);
+      min-height: 280px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .teacher-card::before,
+    .teacher-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .teacher-card::before {
+      width: 160px;
+      height: 160px;
+      right: -44px;
+      top: -30px;
+    }
+
+    .teacher-card::after {
+      width: 220px;
+      height: 220px;
+      left: -70px;
+      bottom: -70px;
+    }
+
+    .teacher-card .small-title {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .teacher-card h2 {
+      margin: 0 0 16px;
+      font-size: 32px;
+      line-height: 1.4;
+      color: #ffffff;
+    }
+
+    .teacher-card p {
+      color: #eaf1ff;
+      font-size: 16px;
+      line-height: 1.8;
+      margin: 0 0 20px;
+    }
+
+    .teacher-card .date {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-top: 1px solid rgba(255, 255, 255, 0.35);
+      padding-top: 14px;
+      margin-top: 20px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(380px, 1.3fr) minmax(260px, 0.7fr);
+      gap: 24px;
+      margin-top: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 40px var(--shadow);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .section-title .section-index {
+      font-weight: 800;
+      font-size: 12px;
+      color: var(--blue);
+      letter-spacing: 2px;
+      background: var(--blue-light);
+      padding: 8px 12px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    .module-list {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    .module-card {
+      display: block;
+      padding: 22px 16px 20px;
+      border-radius: 16px;
+      background: var(--panel-soft);
+      color: var(--text);
+      text-decoration: none;
+      min-height: 140px;
+      border: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .module-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--blue);
+      opacity: 0.9;
+    }
+
+    .module-card:nth-child(2)::before { background: var(--green); }
+    .module-card:nth-child(3)::before { background: var(--pink); }
+    .module-card:nth-child(4)::before { background: var(--gold); }
+
+    .module-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 30px var(--shadow);
+      border-color: var(--blue);
+    }
+
+    .module-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .module-top span {
+      color: var(--blue-dark);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .module-top b {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue-dark);
+      background: var(--blue-light);
+      font-size: 18px;
+      border: 1px solid var(--line);
+    }
+
+    .module-card h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .module-card p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .module-card.placeholder {
+      background: repeating-linear-gradient(45deg, var(--panel-soft), var(--panel-soft) 10px, #f8fbff 10px, #f8fbff 20px);
+      opacity: 0.92;
+    }
+
+    .module-card.placeholder p {
+      color: var(--text-soft);
+    }
+
+    .prompt-panel {
+      background: linear-gradient(180deg, #1b2440 0%, #122444 100%);
+      color: #eef5ff;
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: 0 16px 40px var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      min-height: 100%;
+    }
+
+    .prompt-panel .section-title h2 {
+      color: #eef5ff;
+      font-size: 23px;
+    }
+
+    .prompt-panel .section-index {
+      background: rgba(255, 212, 106, 0.14);
+      color: var(--gold);
+      border: 1px solid rgba(255, 212, 106, 0.5);
+    }
+
+    .prompt-text {
+      color: #dceaff;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 16px;
+      border-left: 3px solid var(--gold);
+      font-size: 14px;
+      line-height: 1.9;
+      white-space: normal;
+    }
+
+    .prompt-tag {
+      display: inline-block;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 2px;
+      margin-top: 16px;
+      padding: 7px 10px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 212, 106, 0.4);
+      background: rgba(255, 212, 106, 0.05);
+    }
+
+    .schedule {
+      margin-top: 24px;
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 40px var(--shadow);
+    }
+
+    .timeline {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-left: 2px solid var(--line);
+    }
+
+    .timeline li {
+      position: relative;
+      padding: 0 0 15px 22px;
+    }
+
+    .timeline li::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      background: var(--blue);
+      border-radius: 50%;
+      border: 3px solid var(--blue-light);
+      position: absolute;
+      left: -28px;
+      top: 4px;
+    }
+
+    .timeline li:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline strong {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .timeline span {
+      color: var(--text-soft);
+      font-size: 13px;
+      display: block;
+      margin-top: 6px;
+    }
+
+    footer {
+      padding: 30px 10px 10px;
+      color: var(--text-muted);
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .module-list {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 30px 20px 24px;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+    }
+  </style>
 </head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">✦</div>
+        <span>高级网页设计</span>
+      </div>
+      <nav>
+        <a href="./html.base004.html">HTML基础</a>
+        <a href="./html.base004.html">自我介绍网页</a>
+        <a href="./info.html">信息表</a>
+        <a href="./index.html">课堂首页</a>
+      </nav>
+    </header>
 
-<body class="home-body">
+    <section class="hero">
+      <div class="hero-grid">
+        <section class="hero-copy">
+          <div class="label">课堂实践 / 课程首页</div>
+          <h1>张博文的《高级网页设计》课堂实践</h1>
+          <p class="subtitle">
+            HTML基础 · 自我介绍网页 · 其余模块后续在增加
+          </p>
+          <div class="hero-stats">
+            <div class="stat">
+              <strong>03</strong>
+              <span>已开放页面</span>
+            </div>
+            <div class="stat">
+              <strong>01</strong>
+              <span>课堂目录</span>
+            </div>
+            <div class="stat">
+              <strong>∞</strong>
+              <span>实践扩展</span>
+            </div>
+          </div>
+        </section>
 
-    <header class="hero"><div class="shell hero-inner"><div class="hero-copy"><p class="eyebrow">WEB DESIGN · CLASS PRACTICE</p><h1>万超然的<br><span>《高级网页设计》</span></h1><p class="hero-lead">从一行 HTML 开始，搭建属于自己的网页作品集。</p><a class="primary-link" href="#directory">进入课堂目录 <span>↓</span></a></div><div class="hero-note"><span>01</span><p>本学期<br>实践档案</p></div></div></header>
+        <aside class="teacher-card">
+          <div class="small-title">课程主题</div>
+          <h2>网页设计实践</h2>
+          <p>
+            通过原生HTML、CSS与静态网页结构，构建清晰、有序、可持续扩展的课堂展示内容。
+          </p>
+          <div class="date">
+            <span>课程目录 ▸ HTML基础 / 自我介绍 / 信息表</span>
+          </div>
+        </aside>
+      </div>
+    </section>
 
-    <main class="shell home-main" id="directory"><div class="section-heading"><div><p class="eyebrow">CONTENTS / 目录</p><h2>课堂实践</h2></div><p>持续更新中 · <strong>02</strong> 个网页</p></div><div class="course-grid"><a class="course-card featured" href="self-introduction.html"><span class="card-index">01</span><span class="card-tag">HTML BASICS</span><h3>HTML 基础</h3><p>从标题、段落、列表、图片、表格到语义化标签的入门练习。</p><span class="card-arrow">↗</span></a><a class="course-card" href="self-introduction.html"><span class="card-index">02</span><span class="card-tag">HTML + CSS</span><h3>自我介绍网页</h3><p>个人信息、列表、图片、表格与语义化标签的综合练习。</p><span class="card-arrow">↗</span></a><a class="course-card" href="form.html"><span class="card-index">03</span><span class="card-tag">HTML FORM</span><h3>表单实践</h3><p>使用文本框、单选框、复选框、下拉菜单与文件上传。</p><span class="card-arrow">↗</span></a><div class="course-card upcoming"><span class="card-index">04</span><span class="card-tag">COMING SOON</span><h3>待添加模块</h3><p>新的课堂实践将在这里继续展开。</p><span class="card-arrow">＋</span></div></div><section class="prompt-section"><p class="eyebrow">PROJECT BRIEF / 需求记录</p><h2>本页面提示词</h2><blockquote>创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为万超然的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词</blockquote></section></main>
-    <footer><div class="shell footer-inner"><p>万超然的《高级网页设计》课堂实践</p><p>HTML / CSS / 2026</p></div></footer>
+    <main class="main-grid">
+      <section class="panel">
+        <div class="section-title">
+          <h2>课堂目录</h2>
+          <span class="section-index">MODULE LIST</span>
+        </div>
+        <div class="module-list">
+          <a class="module-card" href="./html.base004.html">
+            <div class="module-top">
+              <span>Module 01</span>
+              <b>→</b>
+            </div>
+            <h3>HTML基础</h3>
+            <p>学习HTML结构、标签语言与网页组织方式。</p>
+          </a>
+          <a class="module-card" href="./html.base004.html">
+            <div class="module-top">
+              <span>Module 02</span>
+              <b>→</b>
+            </div>
+            <h3>自我介绍网页</h3>
+            <p>以个人信息与兴趣为主题展示静态网页内容。</p>
+          </a>
+          <a class="module-card placeholder" href="#">
+            <div class="module-top">
+              <span>Module 03</span>
+              <b>＋</b>
+            </div>
+            <h3>其余模块</h3>
+            <p>后续在增加更多网页设计模块内容。</p>
+          </a>
+          <a class="module-card placeholder" href="#">
+            <div class="module-top">
+              <span>Module 04</span>
+              <b>＋</b>
+            </div>
+            <h3>扩展练习</h3>
+            <p>后续继续完善课程案例与设计实验。</p>
+          </a>
+        </div>
+      </section>
 
+      <aside class="prompt-panel">
+        <div class="section-title">
+          <h2>本提示词</h2>
+          <span class="section-index">PROMPT</span>
+        </div>
+        <div class="prompt-text">
+          创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为张博文的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词。
+        </div>
+        <div class="prompt-tag">Course Project</div>
+      </aside>
+    </main>
+
+    <section class="schedule">
+      <div class="section-title">
+        <h2>网页目录</h2>
+        <span class="section-index">INDEX</span>
+      </div>
+      <ul class="timeline">
+        <li>
+          <strong><a href="./html.base004.html">html.base004.html</a></strong>
+          <span>HTML基础与自我介绍网页内容。</span>
+        </li>
+        <li>
+          <strong><a href="./info.html">info.html</a></strong>
+          <span>个人信息表子页面。</span>
+        </li>
+        <li>
+          <strong><a href="./index.html">index.html</a></strong>
+          <span>课程首页，整合本目录下的全部网页链接。</span>
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      张博文的《高级网页设计》课堂实践 · HTML基础 · 自我介绍网页 · 其余模块后续在增加
+    </footer>
+  </div>
 </body>
-
+</html>
+</body>
 </html>
