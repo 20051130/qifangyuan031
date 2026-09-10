@@ -1,0 +1,274 @@
+/* CSS选择器：
+    （1）标签选择器（一般全局CSS用）
+    （2）类选择器
+    （3）id选择器
+    （4）后代选择器
+    （5）群组选择器  */
+
+/* 全局css  *通配符标签选择器 */
+*{
+    margin: 0;
+    padding: 0;
+}
+
+/*标签选择器 ul */
+ul{
+    list-style: none;
+}
+/*标签选择器 a */
+a{
+    text-decoration: none;
+    color: black;
+    font-size:18px;
+}
+/*标签选择器 img */
+img{
+    border: none;
+    display: block;
+    width:300px;
+    margin:10px 0;
+}
+/*标签选择器 header nav section article footer aside div p */
+header{
+    background-color:#eee;
+    padding:15px;
+}
+nav{
+    padding:8px 15px;
+    background:#cccccc;
+}
+section{
+    padding:20px;
+}
+article{
+    padding:15px;
+}
+aside{
+    background:#f1f1f1;
+    padding:10px;
+}
+footer{
+    padding:20px;
+    background:#222;
+    color:#fff;
+}
+div{
+    margin:15px 0;
+}
+p{
+    margin:8px 0;
+}
+
+/* --------------------类选择器 .开头 -------------------- */
+.title-demo{
+    color: white;
+    background: #c8a2c8;
+    padding: 6px 16px ;
+    border: 1px solid black;
+    margin:12px 0;
+}
+.text-cont{
+    font-size:17px;
+    line-height:1.6;
+}
+.btn{
+    padding:6px 12px;
+    margin-top:10px;
+}
+.btn:hover{
+    background-color: rgb(159, 240, 245);
+    color:white;
+}
+
+/* --------------------id选择器 #开头 -------------------- */
+#user-table{
+    width: 500px;
+    border: 1px solid rgba(249, 172, 220, 0.959);
+    margin: 0 auto;
+}
+
+/* --------------------后代选择器：父选择器 子选择器 -------------------- */
+/* #user-table 下面的caption，后代选择器 */
+#user-table caption{
+    color: rgb(250, 144, 220);
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom:8px;
+}
+/* nav里面a标签：后代选择器 */
+nav a{
+    color:#f9fb7c;
+}
+
+/* --------------------群组选择器 逗号隔开多个选择器 -------------------- */
+ol,ul,.text-cont{
+    margin: 10px 0;
+    padding: 10px;
+    color: rgb(198, 81, 198);
+}
+img{
+    width:150px;
+}
+
+/* 自我介绍页的浅紫白主题 */
+.qfy-page{
+    color:#514761;
+    background:#faf8fe;
+    font-family:Georgia,"Times New Roman",serif;
+    line-height:1.7;
+}
+.qfy-page header{
+    background:#eee8fa;
+    padding:16px 20px;
+    border-bottom:1px solid #ddd2ef;
+}
+.qfy-page nav{
+    background:#f5f1fc;
+    padding:10px 20px;
+    border-bottom:1px solid #e5dcf2;
+}
+.qfy-page nav a{
+    color:#8062aa;
+    font-size:16px;
+}
+.qfy-page section,
+.qfy-page article{
+    background:#ffffff;
+    margin:16px auto;
+    padding:20px;
+    width:min(920px,calc(100% - 32px));
+    border:1px solid #e8e0f4;
+    box-shadow:0 4px 14px rgba(150,120,190,.08);
+}
+.qfy-page aside{
+    width:min(920px,calc(100% - 32px));
+    margin:16px auto;
+    padding:14px 20px;
+    background:#f3eefb;
+    color:#756987;
+    border-left:3px solid #c4afe2;
+}
+.qfy-page .title-demo{
+    color:#8062aa;
+    background:#f0eafb;
+    padding:6px 14px;
+    border:1px solid #dcd0ed;
+    border-radius:4px;
+}
+.qfy-page .text-cont,
+.qfy-page ol,
+.qfy-page ul{
+    color:#756987;
+}
+.qfy-page #user-table{
+    border-color:#d7c7ed;
+    background:#ffffff;
+}
+.qfy-page #user-table th{
+    color:#8062aa;
+    background:#f3eefb;
+}
+.qfy-page #user-table caption{
+    color:#9278b9;
+}
+.qfy-page .btn{
+    color:#ffffff;
+    background:#b49bd8;
+    border:1px solid #9e81c8;
+    border-radius:4px;
+}
+.qfy-page .btn:hover{
+    background:#9278b9;
+}
+.qfy-page footer{
+    background:#eee8fa;
+    color:#756987;
+    border-top:1px solid #ddd2ef;
+}
+
+.form-page{
+    min-height:100vh;
+    color:#514761;
+    background:#faf8fe;
+    font-family:Georgia,"Times New Roman",serif;
+    line-height:1.7;
+}
+.form-page header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    padding:16px 20px;
+    background:#eee8fa;
+    border-bottom:1px solid #ddd2ef;
+}
+.form-page header .title-demo{
+    margin:0;
+    color:#8062aa;
+    background:transparent;
+    border:0;
+    padding:0;
+}
+.form-page header a{
+    color:#8062aa;
+    font-size:16px;
+}
+.form-page form{
+    width:min(620px,calc(100% - 32px));
+    margin:28px auto;
+    padding:24px;
+    background:#ffffff;
+    border:1px solid #e8e0f4;
+    box-shadow:0 4px 14px rgba(150,120,190,.08);
+}
+.form-page form p{
+    margin:0;
+    padding:10px 0;
+    color:#756987;
+}
+.form-page input[type="text"],
+.form-page input[type="password"],
+.form-page input[type="email"],
+.form-page input[type="file"],
+.form-page textarea,
+.form-page select{
+    max-width:100%;
+    margin:4px 0;
+    padding:8px 10px;
+    color:#514761;
+    background:#fcfaff;
+    border:1px solid #d9cbed;
+    border-radius:4px;
+    font:inherit;
+}
+.form-page input:focus,
+.form-page textarea:focus,
+.form-page select:focus{
+    outline:2px solid #dbc9f0;
+    border-color:#a98aca;
+}
+.form-page input[type="submit"],
+.form-page input[type="reset"],
+.form-page input[type="button"]{
+    margin:8px 6px 0 0;
+    padding:7px 14px;
+    color:#ffffff;
+    background:#b49bd8;
+    border:1px solid #9e81c8;
+    border-radius:4px;
+    cursor:pointer;
+}
+.form-page input[type="submit"]:hover,
+.form-page input[type="reset"]:hover,
+.form-page input[type="button"]:hover{
+    background:#9278b9;
+}
+@media (max-width:620px){
+    .form-page header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+    .form-page form{
+        padding:18px;
+    }
+}

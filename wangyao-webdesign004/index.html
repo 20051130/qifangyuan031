@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="齐方圆的高级网页设计课堂实践目录">
+    <title>齐方圆 · 高级网页设计课堂实践</title>
+    <style>
+        :root { --ink:#453b57; --muted:#91879f; --paper:#f6f2fc; --card:#ffffff; --line:#e6def2; --coral:#b79bdc; --coral-dark:#9278b9; --teal:#a58bc9; }
+        * { box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { margin:0; color:var(--ink); background:var(--paper); font-family:Georgia,"Times New Roman",serif; line-height:1.7; }
+        body::before { position:fixed; inset:0; z-index:-1; pointer-events:none; content:""; opacity:.35; background-image:radial-gradient(#ddd3ed .7px,transparent .7px); background-size:18px 18px; }
+        .page-shell { width:min(920px,calc(100% - 40px)); margin:0 auto; }
+        header { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 0 8px; }
+        .mark { color:var(--coral-dark); font-size:.82rem; font-weight:bold; letter-spacing:.08em; }
+        nav a { margin-left:18px; color:var(--ink); font-size:.86rem; text-decoration:none; }
+        nav a:hover,nav a:focus { color:var(--coral-dark); text-decoration:underline; }
+        .hero { display:grid; grid-template-columns:1.3fr .7fr; gap:36px; align-items:end; padding:34px 0 40px; }
+        .eyebrow { color:var(--coral-dark); font:bold .8rem/1.2 Arial,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+        h1 { max-width:580px; margin:10px 0 12px; font-size:clamp(2.25rem,5vw,4.2rem); line-height:.98; letter-spacing:-.04em; }
+        h1 span { color:#a18bbd; font-size:.72em; font-weight:normal; }
+        .hero-copy { max-width:470px; color:var(--muted); font-size:.92rem; }
+        .name-card { position:relative; padding:20px 22px; overflow:hidden; background:linear-gradient(135deg,#ffffff 0%,#f0eafb 100%); border:1px solid #ddd2ef; border-radius:12px; box-shadow:6px 6px 0 rgba(165,139,201,.12); }
+        .name-card::after { position:absolute; right:-22px; bottom:-28px; width:92px; height:92px; content:""; border:1px solid #d4c4eb; border-radius:50%; }
+        .name-label { position:relative; z-index:1; color:#a18bbd; font:11px/1.2 Arial,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+        .name-card h2 { position:relative; z-index:1; margin:8px 0 9px; color:#8062aa; font-size:2rem; letter-spacing:.12em; }
+        .name-card p { position:relative; z-index:1; margin:0; color:#9587a8; font-size:.86rem; }
+        main { padding:28px 0 40px; border-top:1px solid var(--line); }
+        .section-heading { display:flex; justify-content:space-between; align-items:baseline; gap:16px; margin-bottom:15px; }
+        h2 { margin:0; font-size:1.4rem; }
+        .section-heading p { margin:0; color:var(--muted); }
+        .module-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; }
+        .module { min-height:175px; display:flex; flex-direction:column; padding:15px; background:var(--card); border:1px solid var(--line); box-shadow:4px 4px 0 rgba(36,93,103,.08); }
+        .module-number { color:var(--coral); font:bold 1.5rem/1 Arial,sans-serif; }
+        .module h3 { margin:15px 0 4px; font-size:1.02rem; }
+        .module p { margin:0; color:var(--muted); font-size:.82rem; }
+        .module a { align-self:flex-start; margin-top:auto; padding-top:10px; color:var(--coral-dark); font-size:.86rem; font-weight:bold; text-decoration:none; }
+        .module a::after { content:"  →"; }
+        .module a:hover,.module a:focus { text-decoration:underline; }
+        .home-module { background:var(--teal); border-color:var(--teal); color:#ffffff; }
+        .home-module .module-number,.home-module p,.home-module a { color:#f4edff; }
+        .coming { background:transparent; border-style:dashed; box-shadow:none; }
+        .coming .module-number { color:var(--teal); }
+        .coming span { margin-top:auto; padding-top:10px; color:var(--muted); font-size:.78rem; }
+        footer { padding:16px 0 25px; border-top:1px solid var(--line); color:var(--muted); font-size:.82rem; }
+        @media (max-width:720px) {
+            .page-shell { width:min(100% - 28px,560px); }
+            header { align-items:flex-start; flex-direction:column; }
+            nav a { margin:0 16px 0 0; }
+            .hero { display:block; padding:28px 0 34px; }
+            .name-card { margin-top:22px; }
+            .section-heading { display:block; }
+            .section-heading p { margin-top:7px; }
+            .module-grid { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header>
+            <div class="mark">QFY / WEB DESIGN</div>
+            <nav aria-label="页面导航"><a href="#catalog">课堂目录</a></nav>
+        </header>
+        <section class="hero" aria-labelledby="page-title">
+            <div><div class="eyebrow">Classroom Practice · 2026</div><h1 id="page-title">高级网页设计<br><span>课堂实践</span></h1><p class="hero-copy">这里是齐方圆的网页设计学习档案。每一个页面都是一次练习，也是把想法变成界面的过程。</p></div>
+            <div class="name-card"><div class="name-label">Student Portfolio</div><h2>齐方圆</h2><p>从标签开始，向体验前进。<br>HTML 结构 · CSS 表现 · 持续实践</p></div>
+        </section>
+        <main id="catalog">
+            <div class="section-heading"><h2>课堂目录</h2><p>已收录 03 个网页 · 后续持续更新</p></div>
+            <div class="module-grid">
+                <article class="module home-module"><div class="module-number">00</div><h3>课程实践首页</h3><p>本页是所有课堂网页的入口，集中查看学习进度与实践内容。</p><a href="index.html">当前页面</a></article>
+                <article class="module"><div class="module-number">01</div><h3>HTML 基础</h3><p>标题、段落、链接、图片、列表、表格、表单与 HTML5 语义标签练习。</p><a href="1.html">进入练习页面</a></article>
+                <article class="module"><div class="module-number">02</div><h3>自我介绍网页</h3><p>使用结构化内容完成个人介绍，并练习图片、信息表格与页面布局。</p><a href="qfy.html">查看网页实践</a></article>
+                <article class="module"><div class="module-number">03</div><h3>表单交互</h3><p>体验文本、密码、邮箱、文件、单选、多选和下拉菜单等表单控件。</p><a href="form.html">打开表单页面</a></article>
+                <article class="module coming"><div class="module-number">04</div><h3>更多模块</h3><p>新的课堂实践会持续加入这里，目录也会随学习进度逐步生长。</p><span>即将更新</span></article>
+            </div>
+        </main>
+        <footer>齐方圆的《高级网页设计》课堂实践 · 本地原生 HTML / CSS 页面</footer>
+    </div>
+</body>
+</html>
