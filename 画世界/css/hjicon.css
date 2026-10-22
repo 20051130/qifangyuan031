@@ -1,0 +1,44 @@
+/* ===== 画世界字体图标（来源: iconfont.cn 项目 5245628） =====
+ * 图标由画世界原版截图裁剪 -> potrace 矢量化 -> iconfont.cn 生成字体
+ * unicode 映射见 img/signal/iconfont.json
+ */
+@font-face {
+  font-family: "hjicon";
+  src: url('../img/signal/iconfont.woff2?t=1792553909262') format('woff2'),
+       url('../img/signal/iconfont.woff?t=1792553909262') format('woff'),
+       url('../img/signal/iconfont.ttf?t=1792553909262') format('truetype');
+}
+
+.hjicon {
+  font-family: "hjicon" !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* ---- 语义映射 ---- */
+.hjicon-tab-home::before      { content: "\e60f"; } /* 首页(房子) */
+.hjicon-tab-msg::before       { content: "\e604"; } /* 消息(气泡) */
+.hjicon-tab-mine::before      { content: "\e605"; } /* 我的(人形) */
+.hjicon-tab-create::before    { content: "\e603"; } /* 发布(画笔) */
+.hjicon-search::before        { content: "\e60e"; } /* 搜索(放大镜) */
+.hjicon-msg-at::before        { content: "\e606"; } /* @我的 */
+.hjicon-msg-comment::before   { content: "\e607"; } /* 评论 */
+.hjicon-msg-fans::before      { content: "\e608"; } /* 粉丝 */
+.hjicon-msg-gift::before      { content: "\e609"; } /* 礼物 */
+.hjicon-msg-recommend::before { content: "\e60a"; } /* 推荐 */
+.hjicon-msg-like::before      { content: "\e60b"; } /* 喜欢 */
+.hjicon-msg-group::before     { content: "\e60c"; } /* 群聊 */
+.hjicon-msg-notice::before    { content: "\e60d"; } /* 通知 */
+
+/* ---- 特殊尺寸/颜色 ---- */
+/* 中央发布按钮: 原 PNG 为蓝色图形, 字体版用颜色还原 */
+.tabbar .center-btn.hjicon {
+  color: #0091fc;
+  font-size: 40px;
+}

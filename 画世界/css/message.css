@@ -1,0 +1,37 @@
+/* ===== 消息 message.html ===== */
+.msg-page { background: #f5f6f7; }
+
+/* 顶部 Tab（消息 / 聊天） */
+.msg-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  padding: 14px 0 0;
+  background: #fff;
+  position: sticky; top: 0;
+  z-index: 10;
+}
+.msg-tabs .mtab {
+  font-size: 17px;
+  color: #666;
+  padding-bottom: 10px;
+  border-bottom: 3px solid transparent;
+  position: relative;
+}
+.msg-tabs .mtab.active {
+  color: #333; font-weight: bold;
+  border-bottom-color: #2f9bff;
+}
+.msg-tabs .dot {
+  position: absolute;
+  top: -2px; right: -10px;
+  width: 7px; height: 7px;
+  background: #ff4d4f;
+  border-radius: 50%;
+}
+
+/* 图标列表行 */
+.msg-list { margin-top: 2px; }
+.msg-list .row { height: 62px; }
+.msg-list .row-icon { width: 26px; height: 26px; }
+.msg-list .notice-row { border-top: 10px solid #f5f6f7; }

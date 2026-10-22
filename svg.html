@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>svg图标</title>
+    <script src="//at.alicdn.com/t/c/font_5238948_i4flq3hs5kq.js"></script>
+    <link rel="stylesheet" href="./svg.css">
+</head>
+<body>
+    <h2>svg图标</h2>
+    <div class="tab-nav">
+        <div class="tab-item" onclick="changeTab(this)">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-dangaojuan
+"></use>
+            </svg>
+            <span>蛋糕卷</span>
+        </div>
+        <div class="tab-item" onclick="changeTab(this)">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-caomeijuan
+"></use>
+            </svg>
+            <span>草莓卷</span>
+        </div>
+        <div class="tab-item" onclick="changeTab(this)">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-bingqiling"></use>
+            </svg>
+            <span>冰淇淋</span>
+        </div>
+         <div class="tab-item" onclick="changeTab(this)">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-cha"></use>
+            </svg>
+            <span>茶</span>
+        </div>
+        <script>
+            function changeTab(current) {
+            var items = document.querySelectorAll('.tab-item')
+        for (var i = 0; i < items.length; i++) {
+        items[i].classList.remove('active')
+    }
+    current.classList.add('active')
+}
+</script>
+</body>
+</html>

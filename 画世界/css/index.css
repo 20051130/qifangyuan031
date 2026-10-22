@@ -1,0 +1,107 @@
+/* ===== 首页 index.html ===== */
+.page { background: #fff; }
+
+/* 广告 Banner（上图） */
+.banner {
+  margin: 4px 12px;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 140px;
+  background-image: linear-gradient(120deg, #ffe259, #ffa751 55%, #6db3f2 55.2%, #4a90d9);
+  background-size: cover;
+  background-position: center;
+  /* 贴图后加一层半透明白纱，保证广告文字清晰 */
+  box-shadow: inset 0 0 0 2000px rgba(255,255,255,.45);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px;
+}
+.banner .ad-tag {
+  position: absolute; right: 8px; bottom: 6px;
+  font-size: 10px; color: rgba(255,255,255,.9);
+  background: rgba(0,0,0,.2);
+  padding: 1px 6px; border-radius: 8px;
+}
+.banner h2 { font-size: 22px; color: #222; }
+.banner p { font-size: 13px; color: #444; margin-top: 6px; }
+.banner .banner-btn {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #222;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 2px 10px;
+  width: fit-content;
+}
+
+/* 分类入口（图标 + 文字） */
+.cats {
+  display: flex;
+  padding: 12px;
+  gap: 10px;
+}
+.cats a {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #333;
+}
+.cats .cat-img {
+  width: 100%;
+  height: 64px;
+  border-radius: 8px;
+  position: relative;
+  display: flex; align-items: flex-end;
+  padding: 6px;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
+
+/* 瀑布流作品区（上图下文卡片） */
+.waterfall {
+  display: flex;
+  padding: 0 10px;
+  gap: 10px;
+  align-items: flex-start;
+}
+.waterfall .col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.card .cover { width: 100%; }
+.card .card-info { padding: 8px 10px 10px; }
+.card .title {
+  font-size: 14px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card .card-foot {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+.card .avatar {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.card .author {
+  flex: 1;
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card .like { font-size: 12px; color: #999; }

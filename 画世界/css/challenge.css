@@ -1,0 +1,91 @@
+/* ===== 活动挑战 challenge.html ===== */
+.ch-page { background: #fff; min-height: 100vh; }
+
+.ch-header {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+}
+.ch-header .ch-back { font-size: 20px; color: #333; margin-right: 10px; }
+.ch-header .ch-title { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: bold; }
+.ch-header .ch-title .medal { font-size: 20px; }
+.ch-header .new-tag {
+  background: #2f9bff; color: #fff;
+  font-size: 11px; padding: 2px 8px; border-radius: 10px;
+}
+.ch-header .all-link { font-size: 14px; color: #2f9bff; }
+.ch-header .all-link .gt { color: #999; margin-left: 4px; }
+
+.ch-banner {
+  margin: 6px 14px 16px;
+  border-radius: 12px;
+  height: 200px;
+  background: linear-gradient(110deg, #ffe259 0 45%, #7fd0f5 45.2%, #b98a4e);
+  position: relative;
+  padding: 18px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.ch-banner h3 { font-size: 13px; color: #333; }
+.ch-banner h2 { font-size: 26px; color: #111; margin: 4px 0 10px; }
+.ch-banner .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.ch-banner .tags span {
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 2px 10px;
+  color: #222;
+}
+.ch-banner .go {
+  position: absolute; left: 18px; bottom: 16px;
+  font-size: 13px; font-weight: bold; color: #111;
+}
+.ch-banner .ad { position: absolute; right: 8px; bottom: 6px; font-size: 10px; color: #666; }
+
+.ch-links {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 14px;
+  row-gap: 18px;
+}
+.ch-links a {
+  width: 50%;
+  font-size: 15px;
+  color: #333;
+  display: flex; align-items: center; gap: 6px;
+}
+.ch-links .mini-tag { font-size: 10px; color: #fff; border-radius: 4px; padding: 1px 5px; }
+.ch-links .mini-tag.hot { background: #ff6b3b; }
+.ch-links .mini-tag.new { background: #ffb03b; }
+
+/* 底部创作入口 */
+.create-bar {
+  position: fixed;
+  bottom: 66px; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  display: flex;
+  justify-content: space-around;
+  padding: 14px 10px 10px;
+  background: linear-gradient(to top, #fff 70%, transparent);
+}
+.create-bar a {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+  font-size: 12px; color: #333;
+}
+.create-bar .ci {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: #f2f4f6;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+}
+.close-x {
+  position: fixed;
+  bottom: 12px; left: 50%; transform: translateX(-50%);
+  font-size: 22px; color: #666;
+  background: #fff;
+  border-radius: 50%;
+  padding: 6px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}

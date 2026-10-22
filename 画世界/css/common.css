@@ -1,0 +1,209 @@
+/* ===== 全局公共样式 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f5f6f7;
+  color: #333;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+a { text-decoration: none; color: inherit; }
+ul, li { list-style: none; }
+img { display: block; max-width: 100%; }
+
+/* 图片占位块（用渐变代替真实图片） */
+.ph {
+  background-image: linear-gradient(135deg, #c9d6ff, #e2e2e2);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ===== 底部导航栏（5 个页面共用） ===== */
+.tabbar {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  height: 56px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  z-index: 100;
+}
+.tabbar a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #999;
+  position: relative;
+}
+.tabbar a.active { color: #333; }
+.tabbar .icon {
+  width: 24px; height: 24px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.tabbar .badge {
+  position: absolute;
+  top: 6px; right: 22%;
+  min-width: 16px; height: 16px;
+  background: #ff4d4f;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  padding: 0 4px;
+}
+.tabbar .center-btn {
+  width: 52px; height: 52px;
+  margin-top: -18px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.main { padding-bottom: 70px; }
+
+/* ===== tabbar 4 个图标统一 SVG 方案 (描边版未激活 + 实心版激活, 还原原版 App 效果) 作者：24001011031 齐方圆 ===== */
+/* 字体图标字符隐藏, 统一用 SVG 背景 */
+.tabbar .icon.hjicon {
+  font-size: 0;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.tabbar .icon.hjicon::before { content: none; }
+/* 未激活: 描边灰 (#999) */
+.tabbar .hjicon-tab-home     { background-image: url(../img/icons_svg/tab-home.svg); }
+.tabbar .hjicon-tab-msg      { background-image: url(../img/icons_svg/tab-msg.svg); }
+.tabbar .hjicon-tab-mine     { background-image: url(../img/icons_svg/tab-mine.svg); }
+.tabbar .icon-tab-discover   { background-image: url(../img/icons_svg/tab-discover.svg); }
+/* 激活: 实心黑 (#333) */
+.tabbar a.active .hjicon-tab-home     { background-image: url(../img/icons_solid/tab-home-solid.svg); }
+.tabbar a.active .hjicon-tab-msg      { background-image: url(../img/icons_solid/tab-msg-solid.svg); }
+.tabbar a.active .hjicon-tab-mine     { background-image: url(../img/icons_solid/tab-mine-solid.svg); }
+.tabbar a.active .icon-tab-discover   { background-image: url(../img/icons_solid/tab-discover-solid.svg); }
+
+/* ===== 通用列表行（消息页 / 我的页面共用） ===== */
+.row-list { background: #fff; }.row {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 58px;
+  background: #fff;
+}
+.row:active { background: #f7f7f7; }
+.row .row-icon {
+  width: 24px; height: 24px;
+  margin-right: 14px;
+  border-radius: 6px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.row .row-text { flex: 1; font-size: 16px; }
+.row .row-extra {
+  font-size: 13px; color: #bbb;
+}
+.row .row-badge {
+  min-width: 20px; height: 20px;
+  background: #2f9bff;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  padding: 0 6px;
+}
+.row .arrow { color: #ccc; font-size: 18px; margin-left: 8px; }
+.gap { height: 8px; background: #f5f6f7; }
+
+/* ===== 顶部 Tab 导航（首页及其分类页共用） ===== */
+.top-tabs {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 14px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+  overflow-x: auto;
+}
+.top-tabs .search {
+  width: 22px; height: 22px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.top-tabs .tab {
+  font-size: 16px;
+  color: #666;
+  padding-bottom: 6px;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+.top-tabs .tab.active {
+  color: #333;
+  font-weight: bold;
+  border-bottom-color: #2f9bff;
+}
+
+/* ===== 顶部导航栏（返回 + 标题 + 右侧操作） ===== */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  padding: 0 14px;
+  gap: 12px;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #f2f2f2;
+}
+.nav-bar .nav-back {
+  font-size: 20px;
+  color: #333;
+  line-height: 1;
+}
+.nav-bar .nav-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+.nav-bar .nav-action {
+  width: 22px; height: 22px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.nav-bar .nav-side { width: 20px; }
+
+/* ===== 暂无数据占位（新切出来的页面统一使用，整体居中） ===== */
+.empty-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.empty-wrap.has-tabbar { padding-bottom: 56px; }
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #bbb;
+}
+.empty .empty-icon { font-size: 46px; margin-bottom: 14px; }
+.empty .empty-text { font-size: 14px; }

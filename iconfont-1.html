@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Awesome 字体图标示例 | iconfont-1</title>
+  <link rel="stylesheet" href="cdn/fontawesome/css/all.min.css">
+  <style>
+    /* ========== 设计令牌（CSS Custom Properties） ========== */
+    :root {
+      /* 品牌色 */
+      --qfy-primary: #4f6ef2;
+      --qfy-primary-dark: #3a55d4;
+      --qfy-primary-light: #eef1fe;
+      --qfy-accent: #9b59f5;
+      /* 中性色 */
+      --qfy-bg: #f5f7fc;
+      --qfy-surface: #ffffff;
+      --qfy-surface-alt: #f7f8fd;
+      --qfy-text: #1d1d2f;
+      --qfy-text-muted: #6b7083;
+      --qfy-text-faint: #a8adc0;
+      /* 间距刻度 */
+      --qfy-space-xs: 4px;
+      --qfy-space-sm: 8px;
+      --qfy-space-md: 16px;
+      --qfy-space-lg: 24px;
+      --qfy-space-xl: 40px;
+      --qfy-space-2xl: 64px;
+      /* 圆角 */
+      --qfy-radius-sm: 8px;
+      --qfy-radius-md: 12px;
+      --qfy-radius-lg: 18px;
+      --qfy-radius-pill: 999px;
+      /* 阴影（层次化） */
+      --qfy-shadow-xs: 0 1px 2px rgba(30, 35, 70, 0.04);
+      --qfy-shadow-sm: 0 2px 8px rgba(30, 35, 70, 0.06);
+      --qfy-shadow-md: 0 8px 24px rgba(30, 35, 70, 0.08);
+      --qfy-shadow-lg: 0 20px 48px rgba(30, 35, 70, 0.12);
+      /* 排版 */
+      --qfy-font-sans: -apple-system, "SF Pro Text", "PingFang SC",
+        "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    }
+
+    /* ========== 基础重置 ========== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      margin: 0;
+      font-family: var(--qfy-font-sans);
+      background: var(--qfy-bg);
+      color: var(--qfy-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ========== 头部（渐变 + 装饰光斑 + 玻璃态） ========== */
+    .qfy_header {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #4f6ef2 0%, #7b6af0 50%, #9b59f5 100%);
+      color: #fff;
+      text-align: center;
+      padding: 80px var(--qfy-space-md) 100px;
+    }
+    /* 装饰光斑：用伪元素模拟柔和光晕，增加层次 */
+    .qfy_header::before,
+    .qfy_header::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .qfy_header::before {
+      width: 320px; height: 320px;
+      background: #ffffff;
+      top: -80px; left: -60px;
+      opacity: 0.15;
+    }
+    .qfy_header::after {
+      width: 400px; height: 400px;
+      background: #ffd2f0;
+      bottom: -120px; right: -80px;
+      opacity: 0.20;
+    }
+    .qfy_header h1 {
+      position: relative;
+      margin: 0 0 var(--qfy-space-sm);
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: inline-flex; align-items: center; gap: var(--qfy-space-sm);
+      text-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    }
+    .qfy_header h1 i { font-size: 1.05em; }
+    .qfy_header p {
+      position: relative;
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.85;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+    }
+
+    /* ========== 主容器 ========== */
+    .qfy_main {
+      max-width: 1000px;
+      margin: -60px auto 0;
+      padding: 0 var(--qfy-space-md) var(--qfy-space-2xl);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ========== 卡片（渐变边框 + 层次阴影 + hover 微上浮） ========== */
+    .qfy_card {
+      position: relative;
+      background: var(--qfy-surface);
+      border-radius: var(--qfy-radius-lg);
+      padding: var(--qfy-space-xl) var(--qfy-space-lg);
+      margin-bottom: var(--qfy-space-lg);
+      box-shadow: var(--qfy-shadow-sm);
+      transition: box-shadow 0.35s ease, transform 0.35s ease;
+      /* 渐变边框：用伪元素铺一层渐变底色，外层溢出 */
+      isolation: isolate;
+    }
+    .qfy_card::before {
+      content: "";
+      position: absolute; inset: 0;
+      border-radius: var(--qfy-radius-lg);
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(79,110,242,0.25), rgba(155,89,245,0.12));
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events: none;
+    }
+    .qfy_card:hover {
+      box-shadow: var(--qfy-shadow-md);
+      transform: translateY(-2px);
+    }
+    .qfy_card h2 {
+      position: relative;
+      margin: 0 0 var(--qfy-space-lg);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--qfy-text);
+      letter-spacing: -0.2px;
+      display: inline-flex; align-items: center; gap: var(--qfy-space-sm);
+    }
+    /* 标题前的装饰竖条 */
+    .qfy_card h2::before {
+      content: "";
+      width: 4px; height: 18px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--qfy-primary), var(--qfy-accent));
+    }
+
+    /* ========== 图标网格 ========== */
+    .qfy_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: var(--qfy-space-md);
+    }
+    .qfy_item {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center;
+      gap: var(--qfy-space-sm);
+      padding: var(--qfy-space-lg) var(--qfy-space-sm);
+      border-radius: var(--qfy-radius-md);
+      background: var(--qfy-surface-alt);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: default;
+      overflow: hidden;
+    }
+    /* 图标卡片 hover：渐变柔光 + 微上浮 + 阴影加深 */
+    .qfy_item:hover {
+      transform: translateY(-4px);
+      background: var(--qfy-surface);
+      box-shadow: var(--qfy-shadow-md);
+      color: var(--qfy-primary);
+    }
+    /* 图标卡片 hover 时从左下角冒出柔和渐变光 */
+    .qfy_item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(
+        160px 120px at 0% 100%,
+        rgba(79,110,242,0.10),
+        transparent 60%
+      );
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+    .qfy_item:hover::after { opacity: 1; }
+    .qfy_item i {
+      font-size: 28px;
+      position: relative; z-index: 1;
+      transition: transform 0.35s ease;
+    }
+    .qfy_item:hover i { transform: scale(1.12); }
+    .qfy_item span {
+      font-size: 11px;
+      color: var(--qfy-text-muted);
+      position: relative; z-index: 1;
+      transition: color 0.3s ease;
+    }
+    .qfy_item:hover span { color: var(--qfy-primary); }
+
+    /* ========== 切换栏 ========== */
+    .qfy_toggle_bar {
+      display: flex; align-items: center;
+      gap: var(--qfy-space-sm); flex-wrap: wrap;
+      margin-bottom: var(--qfy-space-lg);
+      padding: var(--qfy-space-sm);
+      background: var(--qfy-surface-alt);
+      border-radius: var(--qfy-radius-pill);
+      width: fit-content; max-width: 100%;
+    }
+    .qfy_btn {
+      border: none;
+      background: transparent;
+      color: var(--qfy-text-muted);
+      padding: 10px 20px;
+      border-radius: var(--qfy-radius-pill);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: inherit;
+    }
+    .qfy_btn:hover { color: var(--qfy-primary); background: rgba(79,110,242,0.08); }
+    .qfy_btn_active {
+      background: var(--qfy-surface);
+      color: var(--qfy-primary);
+      box-shadow: var(--qfy-shadow-xs), 0 0 0 1px rgba(79,110,242,0.15);
+    }
+    .qfy_status {
+      font-size: 12px;
+      color: var(--qfy-text-faint);
+      padding: 6px 14px;
+      background: var(--qfy-surface);
+      border-radius: var(--qfy-radius-pill);
+      margin-left: auto;
+      box-shadow: var(--qfy-shadow-xs);
+    }
+
+    /* 可切换的图标卡片 */
+    .qfy_toggle_item { cursor: pointer; }
+    .qfy_toggle_item.qfy_on {
+      background: linear-gradient(135deg, var(--qfy-primary) 0%, var(--qfy-accent) 100%);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(79,110,242,0.35);
+    }
+    .qfy_toggle_item.qfy_on span { color: rgba(255,255,255,0.9); }
+    .qfy_toggle_item.qfy_on i { color: #fff; }
+
+    /* ========== 尺寸展示 ========== */
+    .qfy_sizes {
+      display: flex; align-items: center;
+      gap: var(--qfy-space-lg); flex-wrap: wrap;
+      color: var(--qfy-primary);
+      padding: var(--qfy-space-md) var(--qfy-space-lg);
+      background: var(--qfy-surface-alt);
+      border-radius: var(--qfy-radius-md);
+    }
+    .qfy_sizes > div {
+      display: flex; flex-direction: column; align-items: center;
+      gap: var(--qfy-space-xs);
+    }
+    .qfy_sizes p { margin: 0; font-size: 12px; color: var(--qfy-text-faint); }
+
+    /* ========== 原理说明 ========== */
+    .qfy_tip {
+      font-size: 13px;
+      color: var(--qfy-text-muted);
+      line-height: 2;
+      background: linear-gradient(135deg, var(--qfy-primary-light), #f5f1ff);
+      border-radius: var(--qfy-radius-md);
+      padding: var(--qfy-space-lg);
+      border-left: 3px solid var(--qfy-primary);
+    }
+    .qfy_tip code {
+      background: rgba(79,110,242,0.12);
+      color: var(--qfy-primary-dark);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+    }
+
+    /* ========== 返回链接 ========== */
+    .qfy_back {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--qfy-primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: var(--qfy-radius-pill);
+      background: var(--qfy-surface);
+      box-shadow: var(--qfy-shadow-sm);
+      transition: all 0.25s ease;
+      border: 1px solid rgba(79,110,242,0.15);
+    }
+    .qfy_back:hover {
+      background: var(--qfy-primary);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(79,110,242,0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ========== 底部 ========== */
+    .qfy_footer {
+      text-align: center;
+      padding: var(--qfy-space-xl) var(--qfy-space-md) var(--qfy-space-lg);
+      color: var(--qfy-text-faint);
+      font-size: 12px;
+    }
+    .qfy_footer span {
+      background: var(--qfy-primary-light);
+      color: var(--qfy-primary-dark);
+      padding: 3px 10px;
+      border-radius: var(--qfy-radius-pill);
+      margin: 0 3px;
+    }
+
+    @media (max-width: 640px) {
+      .qfy_header { padding: 60px var(--qfy-space-md) 80px; }
+      .qfy_main { margin-top: -40px; }
+      .qfy_card { padding: var(--qfy-space-lg) var(--qfy-space-md); }
+      .qfy_grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: var(--qfy-space-sm); }
+    }
+  </style>
+</head>
+<body>
+  <header class="qfy_header">
+    <h1><i class="fa-solid fa-icons"></i> Font Awesome 字体图标</h1>
+    <p>iconfont-1.html —— 类名 + CSS 伪元素渲染的字体图标方案</p>
+  </header>
+
+  <main class="qfy_main">
+    <section class="qfy_card">
+      <h2>常用实体图标（fa-solid）</h2>
+      <div class="qfy_grid">
+        <div class="qfy_item"><i class="fa-solid fa-house"></i><span>fa-house</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-user"></i><span>fa-user</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-heart"></i><span>fa-heart</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-star"></i><span>fa-star</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-gear"></i><span>fa-gear</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-magnifying-glass"></i><span>fa-magnifying-glass</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-envelope"></i><span>fa-envelope</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-phone"></i><span>fa-phone</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-camera"></i><span>fa-camera</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-music"></i><span>fa-music</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-cloud"></i><span>fa-cloud</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-download"></i><span>fa-download</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-paper-plane"></i><span>fa-paper-plane</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-trash"></i><span>fa-trash</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-pen"></i><span>fa-pen</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-image"></i><span>fa-image</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-bell"></i><span>fa-bell</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-calendar"></i><span>fa-calendar</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-clock"></i><span>fa-clock</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-location-dot"></i><span>fa-location-dot</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-cart-shopping"></i><span>fa-cart-shopping</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-comment"></i><span>fa-comment</span></div>
+      </div>
+    </section>
+
+    <section class="qfy_card" id="qfy_toggle_card">
+      <h2>风格切换（点击或使用按钮）</h2>
+      <div class="qfy_toggle_bar">
+        <button class="qfy_btn qfy_btn_active" id="qfy_btn_solid" type="button">全部实心</button>
+        <button class="qfy_btn" id="qfy_btn_regular" type="button">全部常规</button>
+        <span class="qfy_status" id="qfy_status"></span>
+      </div>
+      <div class="qfy_grid">
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-heart"></i><span>heart</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-star"></i><span>star</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-bell"></i><span>bell</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-envelope"></i><span>envelope</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-clock"></i><span>clock</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-calendar"></i><span>calendar</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-image"></i><span>image</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-comment"></i><span>comment</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-user"></i><span>user</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-moon"></i><span>moon</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-sun"></i><span>sun</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-bookmark"></i><span>bookmark</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-thumbs-up"></i><span>thumbs-up</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-eye"></i><span>eye</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-flag"></i><span>flag</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-folder"></i><span>folder</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-file"></i><span>file</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-lightbulb"></i><span>lightbulb</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-paper-plane"></i><span>paper-plane</span></div>
+        <div class="qfy_item qfy_toggle_item qfy_on"><i class="fa-solid fa-pen-to-square"></i><span>pen-to-square</span></div>
+      </div>
+    </section>
+
+    <section class="qfy_card">
+      <h2>同一图标的不同风格（solid / regular / brands）</h2>
+      <div class="qfy_grid">
+        <div class="qfy_item"><i class="fa-solid fa-heart"></i><span>solid heart</span></div>
+        <div class="qfy_item"><i class="fa-regular fa-heart"></i><span>regular heart</span></div>
+        <div class="qfy_item"><i class="fa-solid fa-star"></i><span>solid star</span></div>
+        <div class="qfy_item"><i class="fa-regular fa-star"></i><span>regular star</span></div>
+        <div class="qfy_item"><i class="fa-brands fa-weixin"></i><span>brands weixin</span></div>
+        <div class="qfy_item"><i class="fa-brands fa-qq"></i><span>brands qq</span></div>
+        <div class="qfy_item"><i class="fa-brands fa-weibo"></i><span>brands weibo</span></div>
+        <div class="qfy_item"><i class="fa-brands fa-github"></i><span>brands github</span></div>
+      </div>
+    </section>
+
+    <section class="qfy_card">
+      <h2>尺寸与动画（fa-xs ~ fa-3x、fa-spin）</h2>
+      <div class="qfy_sizes">
+        <div><i class="fa-solid fa-star fa-xs"></i><p>fa-xs</p></div>
+        <div><i class="fa-solid fa-star fa-sm"></i><p>fa-sm</p></div>
+        <div><i class="fa-solid fa-star fa-lg"></i><p>fa-lg</p></div>
+        <div><i class="fa-solid fa-star fa-2x"></i><p>fa-2x</p></div>
+        <div><i class="fa-solid fa-star fa-3x"></i><p>fa-3x</p></div>
+        <div><i class="fa-solid fa-gear fa-3x fa-spin"></i><p>fa-spin</p></div>
+      </div>
+    </section>
+
+    <section class="qfy_card">
+      <h2>实现原理</h2>
+      <div class="qfy_tip">
+        字体图标原理：CSS 通过 <code>@font-face</code> 加载 <code>webfonts/</code> 下的字体文件，
+        再用 <code>::before</code> 伪元素写入图标对应的 Unicode 编码（content 属性），
+        并将字体设为 Font Awesome，从而把一个普通字符渲染成图形。<br>
+        用法：<code>&lt;i class="fa-solid fa-house"&gt;&lt;/i&gt;</code>，
+        优点是使用简单、天然继承字号/颜色；缺点是只能单色显示。
+      </div>
+    </section>
+
+    <a class="qfy_back" href="index.html"><i class="fa-solid fa-arrow-left"></i> 返回首页</a>
+  </main>
+
+  <footer class="qfy_footer">
+    iconfont-1.html · <span>Font Awesome 6.7.2</span> · 本地 CDN
+  </footer>
+
+  <script>
+    // 字体图标切换：实质是替换 fa-solid / fa-regular 类名
+    var qfy_toggle_items = document.querySelectorAll(".qfy_toggle_item");
+    var qfy_status = document.getElementById("qfy_status");
+    var qfy_btn_solid = document.getElementById("qfy_btn_solid");
+    var qfy_btn_regular = document.getElementById("qfy_btn_regular");
+
+    function qfy_update_status() {
+      var qfy_solid_count = document.querySelectorAll(".qfy_toggle_item.qfy_on").length;
+      qfy_status.textContent = "实心 " + qfy_solid_count + " / 常规 " + (qfy_toggle_items.length - qfy_solid_count);
+    }
+    function qfy_set_all(qfy_solid) {
+      qfy_toggle_items.forEach(function (qfy_item) {
+        var qfy_icon = qfy_item.querySelector("i");
+        qfy_icon.classList.toggle("fa-solid", qfy_solid);
+        qfy_icon.classList.toggle("fa-regular", !qfy_solid);
+        qfy_item.classList.toggle("qfy_on", qfy_solid);
+      });
+      qfy_btn_solid.classList.toggle("qfy_btn_active", qfy_solid);
+      qfy_btn_regular.classList.toggle("qfy_btn_active", !qfy_solid);
+      qfy_update_status();
+    }
+    qfy_toggle_items.forEach(function (qfy_item) {
+      qfy_item.addEventListener("click", function () {
+        var qfy_icon = qfy_item.querySelector("i");
+        if (qfy_icon.classList.contains("fa-solid")) {
+          qfy_icon.classList.replace("fa-solid", "fa-regular");
+          qfy_item.classList.remove("qfy_on");
+        } else {
+          qfy_icon.classList.replace("fa-regular", "fa-solid");
+          qfy_item.classList.add("qfy_on");
+        }
+        qfy_update_status();
+      });
+    });
+    qfy_btn_solid.addEventListener("click", function () { qfy_set_all(true); });
+    qfy_btn_regular.addEventListener("click", function () { qfy_set_all(false); });
+    qfy_update_status();
+  </script>
+</body>
+</html>

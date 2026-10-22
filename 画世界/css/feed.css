@@ -1,0 +1,39 @@
+/* ===== 关注/动态 feed.html ===== */
+.feed-page { background: #fff; }
+
+/* 动态列表：上大图下文 */
+.post { padding: 0 0 14px; border-bottom: 10px solid #f5f6f7; }
+.post:last-child { border-bottom: none; }
+
+.post-user {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px 8px;
+  gap: 10px;
+}
+.post-user .avatar { width: 36px; height: 36px; border-radius: 50%; }
+.post-user .name { flex: 1; font-size: 14px; color: #333; }
+.post-user .time { font-size: 12px; color: #bbb; }
+
+.post-body { padding: 0 14px; }
+.post-title { font-size: 15px; font-weight: bold; margin-bottom: 4px; }
+.post-desc { font-size: 13px; color: #666; }
+
+.post-imgs { padding: 10px 14px 0; }
+.post-imgs .img {
+  width: 100%;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.post-foot {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px 0;
+  gap: 26px;
+  font-size: 13px;
+  color: #999;
+}
+.post-foot span.like-active { color: #2f9bff; }
