@@ -173,16 +173,8 @@
         </div>
     </div>
 
-    <!-- 外部引用可复用选项卡组件 -->
+    <!-- 外部引用可复用选项卡组件及新闻页面初始化脚本 -->
     <script src="js/qfy_tab.js"></script>
-    <script>
-        // qfy_newsTab: 实例化新闻选项卡，国内新闻（索引 0）为默认选中项
-        var qfy_newsTab = new QfyTab({
-            tabContainer: '#qfy_news_tabs',
-            panelContainer: '#qfy_news_panels',
-            activeClass: 'qfy_active',
-            defaultIndex: 0
-        });
-    </script>
+    <script src="js/qfy_news.js"></script>
 </body>
 </html>
