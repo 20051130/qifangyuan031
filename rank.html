@@ -1,0 +1,214 @@
+<!--
+  作者：齐方圆
+  建立时间：2026-11-02
+  使用模型：Trae
+  功能名称：电视剧排行榜页面
+  功能简介：1:1 复刻电视剧热度排行榜，包含每日、每周、每月、全部四个选项卡，
+            每个选项卡展示 10 部电视剧的排名（两列布局，前 3 名红色编号，
+            4-10 名灰色编号）。使用可复用选项卡组件 QfyTab 实现切换。
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电视剧排行榜 - 齐方圆</title>
+    <style>
+        /* 全局样式重置 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* 返回首页链接 */
+        .qfy_back {
+            display: block;
+            padding: 12px 20px;
+            color: #1890ff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .qfy_back:hover { text-decoration: underline; }
+
+        /* 排行榜容器 */
+        .qfy_rank_box {
+            width: 520px;
+            margin: 20px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* 选项卡按钮容器 */
+        .qfy_tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        /* 单个选项卡按钮 */
+        .qfy_tab_item {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 15px;
+            color: #666;
+            cursor: pointer;
+            background: #fafafa;
+            border-right: 1px solid #e0e0e0;
+            user-select: none;
+            transition: color 0.2s, background 0.2s;
+        }
+        .qfy_tab_item:last-child { border-right: none; }
+        .qfy_tab_item:hover { color: #333; }
+
+        /* 选项卡选中状态 */
+        .qfy_tab_item.qfy_active {
+            color: #333;
+            background: #fff;
+            font-weight: bold;
+        }
+
+        /* 内容面板容器 */
+        .qfy_panels {
+            padding: 10px 0;
+        }
+
+        /* 单个内容面板 */
+        .qfy_tab_panel { display: none; }
+        .qfy_tab_panel.qfy_active { display: block; }
+
+        /* 排行榜列表：两列布局 */
+        .qfy_rank_list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* 单个排行项 */
+        .qfy_rank_item {
+            width: 50%;
+            display: flex;
+            align-items: center;
+            padding: 9px 18px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* 排名编号方块 */
+        .qfy_rank_num {
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+            background: #999;
+        }
+        /* 前三名：红色背景 */
+        .qfy_rank_num.qfy_top { background: #c0392b; }
+
+        /* 剧名 */
+        .qfy_rank_name {
+            font-size: 14px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="qfy_back">← 返回首页</a>
+
+    <div class="qfy_rank_box">
+        <!-- 选项卡按钮区域 -->
+        <div class="qfy_tabs" id="qfy_rank_tabs">
+            <div class="qfy_tab_item">每日</div>
+            <div class="qfy_tab_item">每周</div>
+            <div class="qfy_tab_item">每月</div>
+            <div class="qfy_tab_item">全部</div>
+        </div>
+
+        <!-- 选项卡内容面板区域 -->
+        <div class="qfy_panels" id="qfy_rank_panels">
+            <!-- 每日排行榜 -->
+            <div class="qfy_tab_panel">
+                <div class="qfy_rank_list">
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">1</span><span class="qfy_rank_name">最美的时光</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">2</span><span class="qfy_rank_name">咱们结婚吧</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">3</span><span class="qfy_rank_name">渗透</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">4</span><span class="qfy_rank_name">继承者们</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">5</span><span class="qfy_rank_name">烽火佳人</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">6</span><span class="qfy_rank_name">极品女士2季</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">7</span><span class="qfy_rank_name">爱闪亮</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">8</span><span class="qfy_rank_name">狼烟（2013）</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">9</span><span class="qfy_rank_name">钱多多炼爱记</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">10</span><span class="qfy_rank_name">苍狼</span></div>
+                </div>
+            </div>
+
+            <!-- 每周排行榜 -->
+            <div class="qfy_tab_panel">
+                <div class="qfy_rank_list">
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">1</span><span class="qfy_rank_name">咱们结婚吧</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">2</span><span class="qfy_rank_name">继承者们</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">3</span><span class="qfy_rank_name">最美的时光</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">4</span><span class="qfy_rank_name">爱闪亮</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">5</span><span class="qfy_rank_name">渗透</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">6</span><span class="qfy_rank_name">狼烟（2013）</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">7</span><span class="qfy_rank_name">三十岁，你好</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">8</span><span class="qfy_rank_name">钱多多炼爱记</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">9</span><span class="qfy_rank_name">特种兵之火凤凰</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">10</span><span class="qfy_rank_name">极品女士2季</span></div>
+                </div>
+            </div>
+
+            <!-- 每月排行榜 -->
+            <div class="qfy_tab_panel">
+                <div class="qfy_rank_list">
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">1</span><span class="qfy_rank_name">特种兵之火凤凰</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">2</span><span class="qfy_rank_name">咱们结婚吧</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">3</span><span class="qfy_rank_name">继承者们</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">4</span><span class="qfy_rank_name">金玉满堂</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">5</span><span class="qfy_rank_name">王的女人</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">6</span><span class="qfy_rank_name">爱闪亮</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">7</span><span class="qfy_rank_name">爱情面前谁怕谁</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">8</span><span class="qfy_rank_name">英雄联盟</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">9</span><span class="qfy_rank_name">小爸爸</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">10</span><span class="qfy_rank_name">我们这拨人</span></div>
+                </div>
+            </div>
+
+            <!-- 全部排行榜 -->
+            <div class="qfy_tab_panel">
+                <div class="qfy_rank_list">
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">1</span><span class="qfy_rank_name">永不磨灭的番号</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">2</span><span class="qfy_rank_name">特种兵之火凤凰</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num qfy_top">3</span><span class="qfy_rank_name">新还珠格格</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">4</span><span class="qfy_rank_name">咱们结婚吧</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">5</span><span class="qfy_rank_name">小爸爸</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">6</span><span class="qfy_rank_name">心术</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">7</span><span class="qfy_rank_name">乡村爱情5</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">8</span><span class="qfy_rank_name">天天有喜</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">9</span><span class="qfy_rank_name">一不小心爱上你</span></div>
+                    <div class="qfy_rank_item"><span class="qfy_rank_num">10</span><span class="qfy_rank_name">夏日甜心</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 外部引用可复用选项卡组件 -->
+    <script src="js/qfy_tab.js"></script>
+    <script>
+        // qfy_rankTab: 实例化排行榜选项卡，每日（索引 0）为默认选中项
+        var qfy_rankTab = new QfyTab({
+            tabContainer: '#qfy_rank_tabs',
+            panelContainer: '#qfy_rank_panels',
+            activeClass: 'qfy_active',
+            defaultIndex: 0
+        });
+    </script>
+</body>
+</html>
