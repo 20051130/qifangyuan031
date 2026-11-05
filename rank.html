@@ -199,16 +199,8 @@
         </div>
     </div>
 
-    <!-- 外部引用可复用选项卡组件 -->
+    <!-- 外部引用可复用选项卡组件及排行榜页面初始化脚本 -->
     <script src="js/qfy_tab.js"></script>
-    <script>
-        // qfy_rankTab: 实例化排行榜选项卡，每日（索引 0）为默认选中项
-        var qfy_rankTab = new QfyTab({
-            tabContainer: '#qfy_rank_tabs',
-            panelContainer: '#qfy_rank_panels',
-            activeClass: 'qfy_active',
-            defaultIndex: 0
-        });
-    </script>
+    <script src="js/qfy_rank.js"></script>
 </body>
 </html>

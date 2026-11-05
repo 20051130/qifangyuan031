@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="齐方圆的 AI 提示词记录 · 高级网页设计">
+    <title>齐方圆 · AI 提示词记录</title>
+    <style>
+        :root { --ink:#453b57; --muted:#91879f; --paper:#f6f2fc; --card:#ffffff; --line:#e6def2; --coral:#b79bdc; --coral-dark:#9278b9; --teal:#a58bc9; }
+        * { box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { margin:0; color:var(--ink); background:var(--paper); font-family:Georgia,"Times New Roman",serif; line-height:1.7; }
+        body::before { position:fixed; inset:0; z-index:-1; pointer-events:none; content:""; opacity:.35; background-image:radial-gradient(#ddd3ed .7px,transparent .7px); background-size:18px 18px; }
+        .page-shell { width:min(820px,calc(100% - 40px)); margin:0 auto; }
+        header { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 0 8px; }
+        .mark { color:var(--coral-dark); font-size:.82rem; font-weight:bold; letter-spacing:.08em; }
+        nav a { margin-left:18px; color:var(--ink); font-size:.86rem; text-decoration:none; }
+        nav a:hover,nav a:focus { color:var(--coral-dark); text-decoration:underline; }
+        .hero { padding:34px 0 30px; }
+        .eyebrow { color:var(--coral-dark); font:bold .8rem/1.2 Arial,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+        h1 { margin:10px 0 12px; font-size:clamp(2rem,4.5vw,3.2rem); line-height:1.05; letter-spacing:-.04em; }
+        .hero-copy { max-width:560px; color:var(--muted); font-size:.92rem; }
+        main { padding:26px 0 40px; border-top:1px solid var(--line); }
+        .entry { margin-bottom:14px; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:4px 4px 0 rgba(165,139,201,.1); overflow:hidden; }
+        .entry-head { display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline; padding:12px 18px; background:linear-gradient(135deg,#ffffff 0%,#f0eafb 100%); border-bottom:1px solid var(--line); }
+        .entry-no { color:var(--coral-dark); font:bold .95rem/1 Arial,sans-serif; }
+        .entry-date { color:var(--muted); font-size:.8rem; }
+        .entry-model { color:#8062aa; font-size:.8rem; background:#f0eafb; border:1px solid #ddd2ef; border-radius:999px; padding:2px 12px; }
+        .entry-body { padding:14px 18px; }
+        .entry-label { color:var(--muted); font:bold .78rem/1 Arial,sans-serif; letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px; }
+        .entry-body blockquote { margin:0; padding:10px 16px; background:#faf7fe; border-left:3px solid var(--coral); border-radius:0 8px 8px 0; color:var(--ink); font-size:.92rem; white-space:pre-wrap; }
+        .entry-body code { background:#f0eafb; color:#8062aa; padding:1px 7px; border-radius:5px; font-family:Consolas,monospace; font-size:.85em; }
+        .entry-note { margin-top:10px; padding:10px 16px; background:#f6fbf7; border:1px dashed #a7d0ae; border-radius:8px; color:#3d6b46; font-size:.85rem; line-height:1.9; }
+        .entry-note a { color:#2f7a3d; }
+        footer { padding:16px 0 25px; border-top:1px solid var(--line); color:var(--muted); font-size:.82rem; }
+        @media (max-width:720px) {
+            .page-shell { width:min(100% - 28px,560px); }
+            header { align-items:flex-start; flex-direction:column; }
+            nav a { margin:0 16px 0 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header>
+            <div class="mark">QFY / PROMPT LOG</div>
+            <nav aria-label="页面导航"><a href="index.html">← 返回首页</a><a href="swiper-homework.html">Swiper 课后三关</a></nav>
+        </header>
+        <section class="hero">
+            <div class="eyebrow">AI Prompt Record · 2026</div>
+            <h1>AI 提示词记录</h1>
+            <p class="hero-copy">按约定规则：每次使用 AI 前先把提示词写入 <code>qfy_prompt.md</code>（附加写入，含时间、模型、内容），本页是它的网页版访问入口，方便老师查看每一次 AI 协作的原始提示词。</p>
+        </section>
+        <main>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 1 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>设定规则：从现在开始，所有CSS类名，id名、js变量都以qfy_开始，所有的提示词都在执行之前写入文件qfy_prompt.md，以附加的方式写入，不覆盖之前的内容，写入的内容包括时间、使用的模型、提示词内容。</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 2 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>设置规则：新建的html文件加入超链接到首页index.html</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 3 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>做两个html网页iconfont-1.html,inconfont-2.html，分别显示font awesome图标和lucide图标，前者使用字体图标的方式，后者使用svg的方式，相关的cdn文件下载到本目录下的cdn目录。</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 4 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>请为 iconfont-1.html 添加字体图标切换功能</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 5 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>为 iconfont-2.html 添加 SVG 图标切换功能</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 6 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>请根据skills下面的frontend-design里面的skill去优化iconfont-1.html和iconfont-2.html两个页面的设计等个，使其更有艺术美感，更优雅。</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 7 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>根据font目录中的iconfont图标完成移动端的固定的自适应宽度的下导航，导航项目包括4个，完成html网页的设计，网页名称iconfont-3.html和iconfont-4.html分别使用字体图标和svg，包括右上角的数字徽章和红点。</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 8 条</span><span class="entry-date">2026-10-22（Asia/Shanghai）</span><span class="entry-model">GLM-5.3-Flash</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>请为 iconfont-3.html 和 iconfont-4.html 添加右上角的搜索图标</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 9 条</span><span class="entry-date">2026-11-05（Asia/Shanghai）</span><span class="entry-model">Copilot SDK in VS Code</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>帮我把swiper的超链接加到首页</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 10 条</span><span class="entry-date">2026-11-05（Asia/Shanghai）</span><span class="entry-model">WorkBuddy AI 助手</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>@swiper-task.html 帮我完成任务四</blockquote></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 11 条</span><span class="entry-date">2026-11-05（Asia/Shanghai）</span><span class="entry-model">WorkBuddy AI 助手</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>https://spontaneous-valkyrie-4e4229.netlify.app/swiper-lesson 帮我完成三个任务（课后三关：任务一提示词工程师、任务二 creative 电影墙、任务三 新增第六件展品爱达·魔都号 AI 生成图 + 超纲能力 keyboard 键盘控制）</blockquote>
+                <div class="entry-note">本条任务的完整多轮提示词与 AI 回答单独记录在 <a href="swiper-作业AI对话记录.md">swiper-作业AI对话记录.md</a>，交付页面为 <a href="swiper-homework.html">swiper-homework.html</a>。</div></div>
+            </article>
+
+            <article class="entry">
+                <div class="entry-head"><span class="entry-no">第 12 条</span><span class="entry-date">2026-11-05（Asia/Shanghai）</span><span class="entry-model">WorkBuddy AI 助手</span></div>
+                <div class="entry-body"><div class="entry-label">提示词</div>
+                <blockquote>@企业微信截图（作业要求：任务一二三 11.9 前提交到 github，并给提示词留有访问入口）你帮我把提示词也整了呗——把本次 Swiper 作业用到的提示词按格式追加进 qfy_prompt.md，并做成网页版 qfy_prompt.html，在首页 index.html 挂上访问入口</blockquote></div>
+            </article>
+
+        </main>
+        <footer>齐方圆的《高级网页设计》AI 提示词记录 · 与 qfy_prompt.md 同步维护</footer>
+    </div>
+</body>
+</html>
