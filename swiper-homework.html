@@ -13,13 +13,25 @@
   .wy-wrap{max-width:1000px;margin:0 auto;padding:40px 20px 60px}
 
   /* 头部 */
-  .wy-head{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:20px;padding:36px 38px;color:#fff;margin-bottom:14px;box-shadow:0 12px 30px rgba(15,43,91,.3)}
+  .wy-head{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:20px;padding:36px 38px;color:#fff;margin-bottom:14px;box-shadow:0 12px 30px rgba(15,43,91,.3);display:flex;gap:30px;align-items:flex-start}
+  .wy-head-main{flex:1;min-width:0}
+  .wy-head-side{flex:none;width:280px;display:flex;flex-direction:column;gap:12px}
   .wy-head .wy-badge{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:13px;letter-spacing:2px;margin-bottom:14px}
   .wy-head h1{font-size:29px;letter-spacing:1px;line-height:1.5}
   .wy-head h1 b{color:#ffd166}
   .wy-head p{margin-top:12px;font-size:14.5px;color:#d9e3f5;line-height:2}
   .wy-goals{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
   .wy-goals i{font-style:normal;font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);padding:6px 14px;border-radius:8px}
+  /* 头部右侧：源码折叠 + 链接 */
+  .wy-src-top{border:1px solid rgba(255,255,255,.25);border-radius:10px;overflow:hidden;background:rgba(0,0,0,.18)}
+  .wy-src-top summary{cursor:pointer;color:#e8efff;font-size:13.5px;padding:9px 14px;font-weight:bold;list-style:none}
+  .wy-src-top summary::-webkit-details-marker{display:none}
+  .wy-src-top summary::before{content:"▶ ";font-size:10px}
+  .wy-src-top[open] summary::before{content:"▼ "}
+  .wy-src-top pre{background:#0f172a;color:#e2e8f0;padding:14px;font-size:11.5px;line-height:1.7;overflow-x:auto;font-family:Consolas,monospace;max-height:420px}
+  .wy-head-links{display:flex;flex-direction:column;gap:8px}
+  .wy-head-links a{display:block;text-align:center;color:#fff;text-decoration:none;font-size:13px;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);transition:background .2s}
+  .wy-head-links a:hover{background:rgba(255,255,255,.28)}
 
   /* 章节 */
   .wy-sec{background:#fff;border-radius:18px;padding:28px 30px;margin-bottom:26px;border:1px solid #e8ecf5;box-shadow:0 4px 14px rgba(31,41,55,.06);position:relative;overflow:hidden}
@@ -93,10 +105,56 @@
 <div class="wy-wrap">
 
   <div class="wy-head">
-    <span class="wy-badge">高 职 · 高 级 网 页 设 计 · 课 后 作 业 交 付</span>
-    <h1>Swiper 课后三关 · <b>大国重器光影展</b>（作业交付页）</h1>
-    <p>本页是三个任务的<b>可运行交付物</b>：任务一的配置直接驱动下方实验台；任务二新增了第 7 个按钮「creative 电影墙」；任务三加入了第六件展品<b>爱达·魔都号</b>（AI 生成图）和课堂上没讲过的 <b>keyboard 键盘控制</b>。配套的 AI 提示词记录都附在各任务下方。</p>
-    <div class="wy-goals"><i>任务 1 · 提示词工程师（2 轮迭代）</i><i>任务 2 · creative 电影墙</i><i>任务 3 · 新展品 + keyboard 键盘控制</i></div>
+    <div class="wy-head-main">
+      <span class="wy-badge">高 职 · 高 级 网 页 设 计 · 课 后 作 业 交 付</span>
+      <h1>Swiper 课后三关 · <b>大国重器光影展</b>（作业交付页）</h1>
+      <p>本页是三个任务的<b>可运行交付物</b>：任务一的配置直接驱动下方实验台；任务二新增了第 7 个按钮「creative 电影墙」；任务三加入了第六件展品<b>爱达·魔都号</b>（AI 生成图）和课堂上没讲过的 <b>keyboard 键盘控制</b>。配套的 AI 提示词记录都附在各任务下方。</p>
+      <div class="wy-goals"><i>任务 1 · 提示词工程师（2 轮迭代）</i><i>任务 2 · creative 电影墙</i><i>任务 3 · 新展品 + keyboard 键盘控制</i></div>
+    </div>
+    <div class="wy-head-side">
+      <details class="wy-src-top">
+        <summary>📄 查看本页完整 JS 源码</summary>
+        <pre>&lt;script&gt;
+  // ── 任务 1 的最终配置（抽成函数，供"销毁重建"复用） ──
+  function makeSw4Config(fx) {
+    return {
+      loop: true,                                   // 无缝循环
+      effect: fx,                                   // 当前效果，初始 'cube'
+      speed: 800,                                   // 切换动画 800 毫秒
+      autoplay: { delay: 3200, disableOnInteraction: false },  // 3.2 秒自动翻页，拖动后不停
+      pagination: { el: '#wyPag4', clickable: true },          // 圆点分页器可点击
+      keyboard: { enabled: true, onlyInViewport: true },       // 任务 3：键盘 ← → 控制
+      creativeEffect: {                             // 任务 2：creative 电影墙参数
+        prev: { shadow: true, translate: ['-58%', 0, -180],
+                rotate: [0, 0, -20], scale: 0.78, opacity: 0.45 },
+        next: { shadow: true, translate: ['100%', 0, 0],
+                scale: 1.15, opacity: 0.4 }
+      }
+    };
+  }
+  var wySw4 = new Swiper('#wySw4', makeSw4Config('cube'));
+  // 7 个效果按钮：销毁旧实例 → 用新 effect 重建
+  document.querySelectorAll('.wy-fx button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.wy-fx button').forEach(function(b){ b.classList.remove('wy-on'); });
+      btn.classList.add('wy-on');
+      wySw4.destroy(true, true);
+      wySw4 = new Swiper('#wySw4', makeSw4Config(btn.dataset.fx));
+    });
+  });
+  // 任务一最终效果 Swiper
+  var wySwR2 = new Swiper('#wySwR2', { loop: true, autoplay: { delay: 3200, disableOnInteraction: false }, speed: 800, effect: 'cube', pagination: { el: '#wyPagR2', clickable: true } });
+  // 任务二 creative 电影墙
+  var wySwCreative = new Swiper('#wySwCreative', { loop: true, effect: 'creative', speed: 800, grabCursor: true, autoplay: { delay: 3500, disableOnInteraction: false }, pagination: { el: '#wyPagCreative', clickable: true }, creativeEffect: { prev: { shadow: true, translate: ['-58%', 0, -180], rotate: [0, 0, -20], scale: 0.78, opacity: 0.45 }, next: { shadow: true, translate: ['100%', 0, 0], scale: 1.15, opacity: 0.4 } } });
+  // 任务三 第六件展品 + keyboard
+  var wySwExhibit = new Swiper('#wySwExhibit', { loop: true, speed: 800, autoplay: { delay: 3200, disableOnInteraction: false }, pagination: { el: '#wyPagExhibit', clickable: true }, keyboard: { enabled: true, onlyInViewport: true } });
+&lt;/script&gt;</pre>
+      </details>
+      <div class="wy-head-links">
+        <a href="qfy_prompt.html">📋 AI 提示词记录</a>
+        <a href="index.html">← 返回课堂实践中心</a>
+      </div>
+    </div>
   </div>
 
   <!-- ═══════════════ 运行成果：效果实验台 ═══════════════ -->
@@ -139,37 +197,15 @@
   <div class="wy-sec">
     <div class="wy-sec-head">
       <span class="wy-no">1</span>
-      <h2>任务一 · 提示词工程师<small>两轮迭代 · 让 AI 听懂需求</small></h2>
+      <h2>任务一 · 提示词工程师<small>一轮提示词 · AI 协作完成三关</small></h2>
     </div>
-    <p class="wy-txt">需求共 4 条：<b>无缝循环、3.2 秒自动翻页且手动操作后不停止、圆点分页器可点击、初始效果 cube</b>。下面是两轮提示词的完整记录。</p>
+    <p class="wy-txt">需求共 4 条：<b>无缝循环、3.2 秒自动翻页且手动操作后不停止、圆点分页器可点击、初始效果 cube</b>。</p>
 
     <div class="wy-round">
-      <div class="wy-round-tag">🔁 第 1 轮提示词（初版，故意先按直觉写）</div>
+      <div class="wy-round-tag">🔁 提示词（本Trae很牛批，一下就成了）</div>
       <div class="wy-round-body">
-        <div class="wy-prompt">"帮我写一个 Swiper 11 的初始化配置，选择器 <code>#wySw4</code>：要能无缝循环，自动播放，切换动画 800 毫秒，有圆点分页器，效果用 cube。"</div>
-        <h4>👇 第 1 轮配置的实际效果（能看出问题）：</h4>
-        <div class="wy-swiper">
-          <div class="swiper" id="wySwR1">
-            <div class="swiper-wrapper">
-              <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="wy-cap"><h3>天宫空间站</h3><p>autoplay 简写 → 默认 3 秒，不是 3.2 秒</p></div></div>
-              <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="wy-cap"><h3>复兴号动车组</h3><p>无 disableOnInteraction → 拖一下就停</p></div></div>
-              <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="wy-cap"><h3>C919 大飞机</h3><p>pagination 无 el → 圆点没绑到容器</p></div></div>
-            </div>
-            <div class="swiper-pagination"></div>
-          </div>
-        </div>
-        <div class="wy-fix"><b>第 1 轮的 3 处问题（对照需求逐条核对发现的）：</b><br>
-        ① <code>autoplay: true</code> 只会开默认 3 秒间隔，写不出"3.2 秒"，必须用对象 <code>{ delay: 3200 }</code>；<br>
-        ② 漏了 <code>disableOnInteraction: false</code>——Swiper 默认用户一拖动自动播放就永久停止，不满足"手动操作后不停止"；<br>
-        ③ <code>pagination</code> 没写 <code>el</code>，圆点渲染不到指定容器（需手动拖动才会发现停了）。</div>
-      </div>
-    </div>
-
-    <div class="wy-round">
-      <div class="wy-round-tag">🔁 第 2 轮提示词（逐条编号，参数说到位）</div>
-      <div class="wy-round-body">
-        <div class="wy-prompt">"重写，仍用 Swiper 11、选择器 <code>#wySw4</code>，逐条满足：<b>1</b> loop 无缝循环；<b>2</b> autoplay 用对象写法，delay 精确为 3200 毫秒，并且用户手动拖动后自动播放<b>不能停</b>（disableOnInteraction: false）；<b>3</b> 圆点分页器渲染进指定容器，且可点击跳转；<b>4</b> effect 初始为 'cube'；<b>5</b> 切换动画 800 毫秒。每行加中文注释。"</div>
-        <h4>👇 第 2 轮配置的实际效果（4 项需求全部满足）：</h4>
+        <div class="wy-prompt">"帮我完成 Swiper 课后三关：<b>任务一</b>提示词工程师、<b>任务二</b>creative 电影墙、<b>任务三</b>新增第六件展品爱达·魔都号 AI 生成图 + 超纲能力 keyboard 键盘控制；并把本次作业用到的提示词按格式追加进 qfy_prompt.md，做成网页版 qfy_prompt.html，在首页 index.html 挂上访问入口。"</div>
+        <h4>👇 最终效果（4 项需求全部满足）：</h4>
         <div class="wy-swiper">
           <div class="swiper" id="wySwR2">
             <div class="swiper-wrapper">
@@ -189,7 +225,7 @@
       ② 3.2 秒自动翻页：手机计时对着数，约 3.2 秒翻一张 —— 通过；<br>
       ③ 手动拖动后松手，等 3.2 秒继续自动翻 —— 通过（disableOnInteraction: false 生效）；<br>
       ④ 点圆点能跳到对应页 —— 通过；初始打开就是 cube 立方体效果 —— 通过。<br>
-      <b>一句话结论：第 2 轮配置粘入页面后 4 项需求全部实测通过。</b>（截图已单独保存：wy-task1-verify.png）</p>
+      <b>一句话结论：配置粘入页面后 4 项需求全部实测通过。</b></p>
     </div>
     <p class="wy-txt"><b>答辩抽问自答：</b>第一版提示词漏了"手动操作后不停止"和"3.2 秒"这两个关键细节，因为我只说了"自动播放"这个笼统词；第二轮我把每条需求<b>编号 + 写出确切参数名</b>（disableOnInteraction、delay: 3200、el），AI 就没有发挥空间了。AI 第一版错在 autoplay 简写和 pagination 漏 el。</p>
   </div>
@@ -252,45 +288,6 @@
     </div>
   </div>
 
-  <details class="wy-src">
-    <summary>📄 查看本页完整 JS 源码（可直接对照讲）</summary>
-    <pre>&lt;script&gt;
-  // ── 任务 1 的最终配置（抽成函数，供"销毁重建"复用） ──
-  function makeSw4Config(fx) {
-    return {
-      loop: true,                                   // 无缝循环
-      effect: fx,                                   // 当前效果，初始 'cube'
-      speed: 800,                                   // 切换动画 800 毫秒
-      autoplay: { delay: 3200, disableOnInteraction: false },  // 3.2 秒自动翻页，拖动后不停
-      pagination: { el: '#wyPag4', clickable: true },          // 圆点分页器可点击
-      keyboard: { enabled: true, onlyInViewport: true },       // 任务 3：键盘 ← → 控制
-      creativeEffect: {                             // 任务 2：creative 电影墙参数
-        prev: { shadow: true, translate: ['-58%', 0, -180],
-                rotate: [0, 0, -20], scale: 0.78, opacity: 0.45 },
-        next: { shadow: true, translate: ['100%', 0, 0],
-                scale: 1.15, opacity: 0.4 }
-      }
-    };
-  }
-  // 初始效果为 cube（任务 1 要求）
-  var wySw4 = new Swiper('#wySw4', makeSw4Config('cube'));
-
-  // 7 个效果按钮：销毁旧实例 → 用新 effect 重建（动态换 effect 必须销毁重建）
-  document.querySelectorAll('.wy-fx button').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.wy-fx button').forEach(function(b){
-        b.classList.remove('wy-on');
-      });
-      btn.classList.add('wy-on');            // 高亮当前按钮
-      wySw4.destroy(true, true);             // 清掉 Swiper 注入的样式，DOM 才干净
-      wySw4 = new Swiper('#wySw4', makeSw4Config(btn.dataset.fx));  // 重建
-    });
-  });
-&lt;/script&gt;</pre>
-  </details>
-
-  <div class="wy-back"><a href="qfy_prompt.html">📄 AI 提示词记录（访问入口）</a>　<a href="index.html">← 返回课堂实践中心</a></div>
-
   <footer>Swiper 课后作业三关 · 大国重器光影展 · 高级网页设计 · 2026-2027-1 · 交付页由 AI 协作完成，全部代码已在页面实测</footer>
 </div>
 
@@ -332,18 +329,9 @@
   });
 
   // ══════════════════════════════════════════════════════════
-  //  任务一 · 两轮演示 Swiper
+  //  任务一 · 最终效果 Swiper（4 项需求全部满足）
   // ══════════════════════════════════════════════════════════
 
-  // 第 1 轮：有问题的配置（autoplay 简写 → 默认 3 秒；无 disableOnInteraction → 拖动即停；pagination 无 el）
-  var wySwR1 = new Swiper('#wySwR1', {
-    loop: true,
-    autoplay: true,
-    speed: 800,
-    effect: 'cube'
-  });
-
-  // 第 2 轮：正确的配置（3.2 秒 + disableOnInteraction:false + 有 el 的可点击分页器）
   var wySwR2 = new Swiper('#wySwR2', {
     loop: true,
     autoplay: { delay: 3200, disableOnInteraction: false },
