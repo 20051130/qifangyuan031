@@ -147,36 +147,39 @@
       <div class="wy-round-tag">🔁 第 1 轮提示词（初版，故意先按直觉写）</div>
       <div class="wy-round-body">
         <div class="wy-prompt">"帮我写一个 Swiper 11 的初始化配置，选择器 <code>#wySw4</code>：要能无缝循环，自动播放，切换动画 800 毫秒，有圆点分页器，效果用 cube。"</div>
-        <h4>AI 第 1 轮回答：</h4>
-        <pre>var swiper = new Swiper('#wySw4', {
-  loop: true,
-  autoplay: true,          // 开自动播放
-  speed: 800,
-  effect: 'cube',
-  pagination: { clickable: true }   // 圆点可点击
-});</pre>
+        <h4>👇 第 1 轮配置的实际效果（能看出问题）：</h4>
+        <div class="wy-swiper">
+          <div class="swiper" id="wySwR1">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="wy-cap"><h3>天宫空间站</h3><p>autoplay 简写 → 默认 3 秒，不是 3.2 秒</p></div></div>
+              <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="wy-cap"><h3>复兴号动车组</h3><p>无 disableOnInteraction → 拖一下就停</p></div></div>
+              <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="wy-cap"><h3>C919 大飞机</h3><p>pagination 无 el → 圆点没绑到容器</p></div></div>
+            </div>
+            <div class="swiper-pagination"></div>
+          </div>
+        </div>
         <div class="wy-fix"><b>第 1 轮的 3 处问题（对照需求逐条核对发现的）：</b><br>
         ① <code>autoplay: true</code> 只会开默认 3 秒间隔，写不出"3.2 秒"，必须用对象 <code>{ delay: 3200 }</code>；<br>
         ② 漏了 <code>disableOnInteraction: false</code>——Swiper 默认用户一拖动自动播放就永久停止，不满足"手动操作后不停止"；<br>
-        ③ <code>pagination</code> 没写 <code>el</code>，圆点根本渲染不到 <code>#wyPag4</code> 里（页面上不指定容器时 Swiper 会找 <code>.swiper-pagination</code>，但配置里连 el 都没给，点不出跳转效果）。</div>
+        ③ <code>pagination</code> 没写 <code>el</code>，圆点渲染不到指定容器（需手动拖动才会发现停了）。</div>
       </div>
     </div>
 
     <div class="wy-round">
       <div class="wy-round-tag">🔁 第 2 轮提示词（逐条编号，参数说到位）</div>
       <div class="wy-round-body">
-        <div class="wy-prompt">"重写，仍用 Swiper 11、选择器 <code>#wySw4</code>，逐条满足：<b>1</b> loop 无缝循环；<b>2</b> autoplay 用对象写法，delay 精确为 3200 毫秒，并且用户手动拖动后自动播放<b>不能停</b>（disableOnInteraction: false）；<b>3</b> 圆点分页器渲染进 <code>#wyPag4</code>，且可点击跳转；<b>4</b> effect 初始为 'cube'；<b>5</b> 切换动画 800 毫秒。每行加中文注释。"</div>
-        <h4>AI 第 2 轮回答（已粘进本页运行）：</h4>
-        <pre>var swiper4 = new Swiper('#wySw4', {
-  loop: true,                                  // 1. 无缝循环
-  autoplay: {                                  // 2. 自动播放
-    delay: 3200,                               //    每 3.2 秒翻一页
-    disableOnInteraction: false                //    手动拖动后不停止
-  },
-  pagination: { el: '#wyPag4', clickable: true }, // 3. 圆点可点击跳转
-  effect: 'cube',                              // 4. 初始效果：3D 立方体
-  speed: 800                                   // 5. 切换动画 800 毫秒
-});</pre>
+        <div class="wy-prompt">"重写，仍用 Swiper 11、选择器 <code>#wySw4</code>，逐条满足：<b>1</b> loop 无缝循环；<b>2</b> autoplay 用对象写法，delay 精确为 3200 毫秒，并且用户手动拖动后自动播放<b>不能停</b>（disableOnInteraction: false）；<b>3</b> 圆点分页器渲染进指定容器，且可点击跳转；<b>4</b> effect 初始为 'cube'；<b>5</b> 切换动画 800 毫秒。每行加中文注释。"</div>
+        <h4>👇 第 2 轮配置的实际效果（4 项需求全部满足）：</h4>
+        <div class="wy-swiper">
+          <div class="swiper" id="wySwR2">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="wy-cap"><h3>天宫空间站</h3><p>3.2 秒自动翻页</p></div></div>
+              <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="wy-cap"><h3>复兴号动车组</h3><p>拖动后不停止</p></div></div>
+              <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="wy-cap"><h3>C919 大飞机</h3><p>圆点可点击跳转</p></div></div>
+            </div>
+            <div class="swiper-pagination" id="wyPagR2"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -198,29 +201,18 @@
       <h2>任务二 · creative 电影墙<small>课堂上没讲的第 7 种效果 · 配合官方示例 257-effect-creative.html 读懂</small></h2>
     </div>
     <p class="wy-txt">参考本地官方示例 <code>swiper/demo/257-effect-creative.html</code>，为实验台新增第 7 个按钮「creative 电影墙」。效果设计：<b>上一张缩小左移并带角度退场，下一张放大、从右侧进场</b>，像电影选片墙。</p>
-    <pre style="background:#0f172a;color:#e2e8f0;border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.9;overflow-x:auto;font-family:Consolas,monospace">creativeEffect: {
-  prev: {                     // 「上一张」离场后的姿态
-    shadow: true,             //   投影，让卡片有"浮起"的层次感
-    translate: ['-58%', 0, -180],  // 左移 58%、不动 y、向后退 180px
-    rotate: [0, 0, -20],      //   绕 z 轴（屏幕平面）逆时针转 20°
-    scale: 0.78,              //   缩小到 78%，像墙上靠后的一张海报
-    opacity: 0.45             //   半透明退到背景
-  },
-  next: {                     // 「下一张」进场前的姿态
-    shadow: true,
-    translate: ['100%', 0, 0],  // 从右侧一个 slide 宽度处出发
-    scale: 1.15,              //   放大 1.15 倍，进场过程中收到正常大小
-    opacity: 0.4              //   带一点透明渐显
-  }
-}</pre>
-    <table class="wy-table">
-      <tr><th>参数</th><th>控制什么</th><th>说明</th></tr>
-      <tr><td><code>prev</code> / <code>next</code></td><td>两张"非当前"卡片各自的姿态</td><td>prev 管左边（已翻过去的）那张，next 管右边（即将进来的）那张</td></tr>
-      <tr><td><code>translate: [x, y, z]</code></td><td>位移</td><td>x/y 可写百分比字符串，<b>百分号相对 slide 自身宽度</b>（不是容器！）；z 写像素，负数是远离观察者（配合 3D 透视变小）</td></tr>
-      <tr><td><code>rotate: [x, y, z]</code></td><td>旋转角度（度）</td><td>x 绕横轴翻滚、y 绕竖轴偏转、z 绕屏幕平面转动（任务里"转 20 度"就是改第三个数）</td></tr>
-      <tr><td><code>scale</code> / <code>opacity</code></td><td>缩放 / 透明度</td><td>1 为原始大小；离场的卡片缩小+半透明，进场的放大渐显</td></tr>
-      <tr><td><code>shadow</code></td><td>卡片投影</td><td>true 时 Swiper 给离场卡片加阴影，增强"墙"的层次</td></tr>
-    </table>
+    <h4>👇 creative 电影墙实际效果（自动播放中，可拖动切换）：</h4>
+    <div class="wy-swiper">
+      <div class="swiper" id="wySwCreative">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="wy-cap"><h3>天宫空间站</h3><p>上一张缩小左移退场</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="wy-cap"><h3>复兴号动车组</h3><p>下一张放大从右进场</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="wy-cap"><h3>C919 大飞机</h3><p>电影选片墙质感</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="wy-cap"><h3>奋斗者号</h3><p>带阴影浮起层次</p></div></div>
+        </div>
+        <div class="swiper-pagination" id="wyPagCreative"></div>
+      </div>
+    </div>
     <div class="wy-check">
       <h3>✅ 向 AI 追问后，用自己的话写下的结论</h3>
       <p><b>prev 的 transform 控制什么？</b>控制"已经翻过去的上一张（左侧旧卡）"离场之后的造型——本页让它左移 58%、缩小到 0.78、绕屏幕平面转 -20°、半透明，像电影墙里靠边的一张海报。<br>
@@ -235,19 +227,22 @@
       <span class="wy-no">3</span>
       <h2>任务三 · 新展品 + 超纲能力<small>第六件展品：爱达·魔都号（AI 生成图）+ keyboard 键盘控制</small></h2>
     </div>
-    <p class="wy-txt"><b>① 新展品：</b>用 AI 生成了横版 16:9 的爱达·魔都号图片（提示词："大型邮轮、白色船身带彩色艺术涂装、清晨金色阳光下平静海面、低角度海面视角、无文字"，生成文件 <code>swiper-imgs/adamo_1.png</code>），slide 结构与前 5 件完全一致，已加入实验台轮播。</p>
-    <pre style="background:#0f172a;color:#e2e8f0;border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.9;overflow-x:auto;font-family:Consolas,monospace">&lt;!-- 第六件展品：爱达·魔都号（任务三新增） --&gt;
-&lt;div class="swiper-slide"&gt;
-  &lt;img src="swiper-imgs/adamo_1.png" alt="爱达·魔都号"&gt;
-  &lt;div class="wy-cap"&gt;&lt;h3&gt;爱达·魔都号&lt;/h3&gt;
-  &lt;p&gt;首艘国产大型邮轮 · 2024 年 1 月首航（AI 生成图）&lt;/p&gt;&lt;/div&gt;
-&lt;/div&gt;</pre>
-    <p class="wy-txt" style="margin-top:10px"><b>② 超纲能力（任选其一 → 我选 keyboard 键盘控制）：</b>给配置加 <code>keyboard: { enabled: true, onlyInViewport: true }</code>，同时在轮播容器 HTML 上加 <code>tabindex="0"</code>（div 默认不能获得焦点，不加它键盘事件进不来）。</p>
-    <table class="wy-table">
-      <tr><th>参数</th><th>作用</th><th>本页取值理由</th></tr>
-      <tr><td><code>enabled</code></td><td>开启键盘方向键翻页</td><td>true：← 翻上一张、→ 翻下一张</td></tr>
-      <tr><td><code>onlyInViewport</code></td><td>仅当轮播在可视区域内才响应键盘</td><td>true：避免页面向下滚动时按方向键，页面滚不动、轮播却在翻的"抢键盘"问题</td></tr>
-    </table>
+    <p class="wy-txt"><b>① 新展品：</b>用 AI 生成了横版 16:9 的爱达·魔都号图片（提示词："大型邮轮、白色船身带彩色艺术涂装、清晨金色阳光下平静海面、低角度海面视角、无文字"，生成文件 <code>swiper-imgs/adamo_1.png</code>），slide 结构与前 5 件完全一致，已加入轮播。</p>
+    <p class="wy-txt"><b>② 超纲能力（选 keyboard 键盘控制）：</b>给配置加 <code>keyboard: { enabled: true, onlyInViewport: true }</code>，同时在轮播容器上加 <code>tabindex="0"</code>。<b>点击下方轮播获得焦点后，用键盘 ← → 方向键即可翻页。</b></p>
+    <h4>👇 第六件展品 + keyboard 键盘控制（点击轮播后按 ← → 试一下）：</h4>
+    <div class="wy-swiper">
+      <div class="swiper" id="wySwExhibit" tabindex="0">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="wy-cap"><h3>天宫空间站</h3><p>2022 年在轨组装完成</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"><div class="wy-cap"><h3>复兴号动车组</h3><p>2017 年投入运营</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"><div class="wy-cap"><h3>C919 大飞机</h3><p>2023 年首架交付</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="wy-cap"><h3>奋斗者号</h3><p>2020 年万米深潜</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="wy-cap"><h3>中国天眼 FAST</h3><p>2020 年正式开放运行</p></div></div>
+          <div class="swiper-slide"><img src="swiper-imgs/adamo_1.png" alt="爱达·魔都号"><div class="wy-cap"><h3>爱达·魔都号</h3><p>首艘国产大型邮轮 · 2024 年 1 月首航（AI 生成图）</p></div></div>
+        </div>
+        <div class="swiper-pagination" id="wyPagExhibit"></div>
+      </div>
+    </div>
     <div class="wy-check">
       <h3>✅ 答辩四连问 · 预设回答</h3>
       <p><b>1. 这段代码什么意思？</b>keyboard 模块把 ← / → 键绑定到轮播的 slideNext / slidePrev 方法上；tabindex="0" 让容器能被点击聚焦，键盘事件才有目标。<br>
@@ -334,6 +329,56 @@
       wySw4.destroy(true, true);             // 清掉 Swiper 注入的样式，DOM 才干净
       wySw4 = new Swiper('#wySw4', makeSw4Config(btn.dataset.fx));  // 用新 effect 重建
     });
+  });
+
+  // ══════════════════════════════════════════════════════════
+  //  任务一 · 两轮演示 Swiper
+  // ══════════════════════════════════════════════════════════
+
+  // 第 1 轮：有问题的配置（autoplay 简写 → 默认 3 秒；无 disableOnInteraction → 拖动即停；pagination 无 el）
+  var wySwR1 = new Swiper('#wySwR1', {
+    loop: true,
+    autoplay: true,
+    speed: 800,
+    effect: 'cube'
+  });
+
+  // 第 2 轮：正确的配置（3.2 秒 + disableOnInteraction:false + 有 el 的可点击分页器）
+  var wySwR2 = new Swiper('#wySwR2', {
+    loop: true,
+    autoplay: { delay: 3200, disableOnInteraction: false },
+    speed: 800,
+    effect: 'cube',
+    pagination: { el: '#wyPagR2', clickable: true }
+  });
+
+  // ══════════════════════════════════════════════════════════
+  //  任务二 · creative 电影墙
+  // ══════════════════════════════════════════════════════════
+
+  var wySwCreative = new Swiper('#wySwCreative', {
+    loop: true,
+    effect: 'creative',
+    speed: 800,
+    grabCursor: true,
+    autoplay: { delay: 3500, disableOnInteraction: false },
+    pagination: { el: '#wyPagCreative', clickable: true },
+    creativeEffect: {
+      prev: { shadow: true, translate: ['-58%', 0, -180], rotate: [0, 0, -20], scale: 0.78, opacity: 0.45 },
+      next: { shadow: true, translate: ['100%', 0, 0], scale: 1.15, opacity: 0.4 }
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════
+  //  任务三 · 第六件展品 + keyboard 键盘控制
+  // ══════════════════════════════════════════════════════════
+
+  var wySwExhibit = new Swiper('#wySwExhibit', {
+    loop: true,
+    speed: 800,
+    autoplay: { delay: 3200, disableOnInteraction: false },
+    pagination: { el: '#wyPagExhibit', clickable: true },
+    keyboard: { enabled: true, onlyInViewport: true }
   });
 </script>
 </body>
