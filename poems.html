@@ -72,12 +72,14 @@
   fetch('http://localhost:3004/api/poems')
     .then(function (res) {
       // 第一段：这里拿到的是 Response 对象，还不是数据
-      // console.log(res);          // ← 调试时先看这个
+      console.log('① 第一个 then 拿到的 Response 对象：', res);   // ← 调试用，答辩讲完可注释掉
+      console.log('   res.ok =', res.ok, '· res.status =', res.status, '· 这时 res.body 还是流，不是数组');
       return res.json();            // 拆箱：JSON 字符串 → JS 数组
     })
     .then(function (qfy_list) {
       // 第二段：这里拿到的才是 poems 数组
-      // console.log(qfy_list);     // ← 确认是数组再写渲染
+      console.log('② 第二个 then 拿到的 poems 数组：', qfy_list); // ← 确认是数组再写渲染
+      console.log('   Array.isArray(qfy_list) =', Array.isArray(qfy_list), '· 共', qfy_list.length, '条');
       qfyTip.style.display = 'none';
       var qfy_html = '';
       qfy_list.forEach(function (qfy_item) {
