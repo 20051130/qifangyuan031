@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>古诗卡片 · 从 JSON 到 fetch</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f6f2fc;color:#453b57;line-height:1.7}
+  .qfy-wrap{max-width:960px;margin:0 auto;padding:36px 20px 60px}
+  .qfy-head{background:linear-gradient(135deg,#5b3a8f,#9278b9);border-radius:18px;padding:30px 34px;color:#fff;margin-bottom:24px;box-shadow:0 10px 24px rgba(91,58,143,.25)}
+  .qfy-head span{display:inline-block;font-size:12.5px;letter-spacing:2px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 14px;margin-bottom:12px}
+  .qfy-head h1{font-size:26px;letter-spacing:1px}
+  .qfy-head p{margin-top:10px;font-size:13.5px;color:#e7dcf7;line-height:2}
+
+  /* 数据链路说明 */
+  .qfy-chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:24px;font-size:12.5px;color:#6b5e80}
+  .qfy-chain b{background:#fff;border:1px solid #e6def2;border-radius:8px;padding:6px 12px;color:#5b3a8f}
+  .qfy-chain i{font-style:normal;color:#b79bdc}
+
+  /* 上图下文卡片 */
+  .qfy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+  .qfy-card{background:#fff;border:1px solid #e6def2;border-radius:14px;overflow:hidden;box-shadow:4px 4px 0 rgba(165,139,201,.12);transition:transform .2s,box-shadow .2s}
+  .qfy-card:hover{transform:translateY(-4px);box-shadow:8px 12px 20px rgba(91,58,143,.18)}
+  .qfy-card img{width:100%;height:150px;object-fit:cover;display:block;background:#f0eafb}
+  .qfy-card h2{font-size:16px;color:#5b3a8f;padding:12px 16px 4px}
+  .qfy-card p{font-size:13px;color:#91879f;padding:0 16px 16px;line-height:2}
+
+  /* 加载 / 出错提示（⭐ 要求：服务器没开时给出提示而非白屏） */
+  .qfy-tip{background:#fff;border:1px dashed #e6def2;border-radius:14px;padding:26px;text-align:center;color:#91879f;font-size:14px}
+  .qfy-tip.qfy-error{border-color:#f3b6b6;background:#fdf5f5;color:#b04a4a}
+  .qfy-tip code{background:#f0eafb;color:#5b3a8f;padding:1px 8px;border-radius:5px;font-family:Consolas,monospace}
+
+  .qfy-back{text-align:center;margin-top:30px}
+  .qfy-back a{display:inline-block;text-decoration:none;color:#5b3a8f;font-size:14px;font-weight:bold;background:#fff;border:1px solid #e6def2;border-radius:999px;padding:9px 24px;transition:transform .2s,box-shadow .2s}
+  .qfy-back a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(91,58,143,.15)}
+
+  footer{text-align:center;margin-top:26px;color:#91879f;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="qfy-wrap">
+
+  <div class="qfy-head">
+    <span>高 级 网 页 设 计 · 从 JSON 到 fetch</span>
+    <h1>古诗卡片 · 上图下文</h1>
+    <p>数据来自本地 Express 服务器：db.json → <b style="color:#ffd166">http://localhost:3004/api/poems</b> → fetch 拆箱 → 渲染成卡片。关掉服务器再刷新本页，会看到友好提示而不是白屏。</p>
+  </div>
+
+  <div class="qfy-chain">
+    <b>db/db.json</b><i> → </i><b>server.js 启动读取</b><i> → </i><b>/api/poems 返回数组</b><i> → </i><b>fetch().then().json()</b><i> → </i><b>模板字符串渲染</b>
+  </div>
+
+  <!-- 卡片容器：JS 渲染结果插到这里 -->
+  <div class="qfy-grid" id="qfyGrid"></div>
+  <!-- 加载/出错提示占位 -->
+  <div class="qfy-tip" id="qfyTip">正在连接数据服务器……</div>
+
+  <div class="qfy-back"><a href="index.html">← 返回课堂实践中心</a></div>
+  <footer>古诗卡片页 · 数据驱动页面练习 · 高级网页设计 · 2026-2027-1</footer>
+</div>
+
+<script>
+  // ════════════════════════════════════════════════════
+  //  fetch 拿数据 → 渲染上图下文卡片
+  //  两段式：第一段 then 拿 Response（还没拆箱），
+  //  调 res.json() 才把 JSON 字符串拆成数组 → 第二段 then 拿数组
+  // ════════════════════════════════════════════════════
+  var qfyGrid = document.getElementById('qfyGrid');
+  var qfyTip  = document.getElementById('qfyTip');
+
+  fetch('http://localhost:3004/api/poems')
+    .then(function (res) {
+      // 第一段：这里拿到的是 Response 对象，还不是数据
+      // console.log(res);          // ← 调试时先看这个
+      return res.json();            // 拆箱：JSON 字符串 → JS 数组
+    })
+    .then(function (qfy_list) {
+      // 第二段：这里拿到的才是 poems 数组
+      // console.log(qfy_list);     // ← 确认是数组再写渲染
+      qfyTip.style.display = 'none';
+      var qfy_html = '';
+      qfy_list.forEach(function (qfy_item) {
+        qfy_html += '<div class="qfy-card">' +
+                      '<img src="' + qfy_item.pic + '" alt="' + qfy_item.title + '">' +
+                      '<h2>' + qfy_item.title + '</h2>' +
+                      '<p>' + qfy_item.content + '</p>' +
+                    '</div>';
+      });
+      qfyGrid.innerHTML = qfy_html;
+    })
+    .catch(function (err) {
+      // 服务器没启动 / 断网时会走到这里：给提示，不白屏
+      qfyTip.classList.add('qfy-error');
+      qfyTip.innerHTML = '⚠️ 拿不到数据（' + err.message + '）<br>' +
+        '多半是数据服务器没开：进 <code>db</code> 文件夹执行 <code>node server.js</code>，' +
+        '看到"数据服务器已启动"后<b>刷新本页</b>即可。';
+    });
+</script>
+</body>
+</html>

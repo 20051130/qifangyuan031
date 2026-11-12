@@ -124,6 +124,16 @@
 
 ---
 
+## 2026-11-12（第13条）
+
+**时间**：2026-11-12（Asia/Shanghai）
+**模型**：WorkBuddy AI 助手
+
+**提示词**：
+> https://spontaneous-valkyrie-4e4229.netlify.app/json-fetch-lesson，你只看"在 Trae 里的完整操作步骤"，我做了 1、2、3、7，4、5、6 没做——帮我补上（发现 Trae 生成的 server.js 和 poems.html 没落盘，按老师提示词的验收清单补齐：db/server.js 端口 3004、poems.html 上图下文 fetch 渲染，字段 pic/title/content，启动服务器并验证 http://localhost:3004/api/poems）
+
+---
+
 ## 2026-11-09（第13条）
 
 **时间**：2026-11-09（Asia/Shanghai）
