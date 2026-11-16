@@ -163,3 +163,15 @@
 
 ---
 
+## 2026-11-16（第16条）
+
+**时间**：2026-11-16（Asia/Shanghai）
+**模型**：DeepSeek-V4.1-Flash
+
+**提示词**：
+> https://spontaneous-valkyrie-4e4229.netlify.app/mobile-events-lesson，根据网页中的提示词帮我完成四个任务，移动端课堂实践提交形式：任务一-任务四，完成之后发布到github或者netlify，其中任务一、任务二不需要提交手机端操作视频，任务一按要求操纵并提交三个思考问题几对应答案，任务二：写出效果即可，发布后能看到，任务三、任务四：写出效果并插入手机实体演示视频（再拿一个设备录制）
+
+**产出**：mobile-homework.html（任务一记录 + 三问答案 + 各任务入口）、mobile-gesture.html（任务二）、mobile-zoom.html（任务三）、mobile-sensor.html（任务四），并新增 img/qfy-mobile-zoom.jpg 演示大图。
+
+---
+

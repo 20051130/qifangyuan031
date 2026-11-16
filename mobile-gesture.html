@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+  作者：齐方圆
+  学号：24001011031
+  建立时间：2026-11-16
+  使用模型：DeepSeek-V4.1-Flash
+  功能名称：任务二 · 中华美食手势卡片（左右滑动切换）
+  功能简介：移动端单指滑动识别练习。4 道中华美食卡片放在一条横向轨道上，
+            监听 touchstart / touchend，用 changedTouches[0] 计算横向位移，
+            位移超过 40px 且横向分量大于纵向时才翻页；左滑看下一道、右滑看上一道，
+            到边界给出"已经是第一张/最后一张"提示；切换用 0.3s 过渡动画，
+            并用 320ms 冷却避免快速连滑一次跳两张；容器 touch-action:pan-y 保证纵向还能滚动页面。
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="移动端触摸事件任务二：中华美食卡片左右滑动切换">
+<title>任务二 · 中华美食手势卡片</title>
+<style>
+    :root { --qfy_ink:#2b2233; --qfy_muted:#7b7086; --qfy_paper:#f6f2fc; --qfy_card:#ffffff; --qfy_line:#e6def2; --qfy_accent:#9278b9; --qfy_dark:#151022; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; color:var(--qfy_ink); background:var(--qfy_paper); font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.7; }
+    body::before { position:fixed; inset:0; z-index:-1; pointer-events:none; content:""; opacity:.35; background-image:radial-gradient(#ddd3ed .7px,transparent .7px); background-size:18px 18px; }
+    .qfy_page { width:min(560px,100%); margin:0 auto; padding:0 16px 40px; }
+    .qfy_bar { position:sticky; top:0; z-index:10; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 2px; background:rgba(246,242,252,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--qfy_line); }
+    .qfy_bar_link { color:var(--qfy_accent); font-size:.82rem; text-decoration:none; }
+    .qfy_bar_link:active { opacity:.6; }
+    .qfy_bar_title { color:var(--qfy_muted); font-size:.8rem; letter-spacing:.06em; }
+    .qfy_kicker { margin:24px 0 4px; color:var(--qfy_accent); font:bold .72rem/1.2 Arial,sans-serif; letter-spacing:.18em; }
+    h1 { margin:0 0 8px; font-family:Georgia,"Times New Roman",serif; font-size:1.8rem; letter-spacing:-.02em; }
+    .qfy_sub { margin:0 0 18px; color:var(--qfy_muted); font-size:.86rem; }
+
+    /* 卡片视口：只交出横向手势，纵向仍交给浏览器滚动 */
+    .qfy_viewport { overflow:hidden; border-radius:18px; touch-action:pan-y; user-select:none; -webkit-touch-callout:none; box-shadow:6px 8px 0 rgba(146,120,185,.12); }
+    .qfy_track { display:flex; transition:transform .3s cubic-bezier(.22,.61,.36,1); will-change:transform; }
+    .qfy_card { flex:0 0 100%; min-height:300px; padding:22px 20px; display:flex; flex-direction:column; justify-content:flex-end; color:#ffffff; position:relative; }
+    .qfy_card::after { position:absolute; top:-30px; right:-16px; width:150px; height:150px; content:""; border:1px solid rgba(255,255,255,.35); border-radius:50%; }
+    .qfy_card_1 { background:linear-gradient(145deg,#8a1f3a 0%,#c0502c 100%); }
+    .qfy_card_2 { background:linear-gradient(145deg,#6d1b1b 0%,#c9462a 100%); }
+    .qfy_card_3 { background:linear-gradient(145deg,#1f5a55 0%,#3f8f76 100%); }
+    .qfy_card_4 { background:linear-gradient(145deg,#4a2c1a 0%,#9a6437 100%); }
+    .qfy_card_no { position:relative; z-index:1; color:rgba(255,255,255,.72); font:bold .72rem/1 Arial,sans-serif; letter-spacing:.2em; }
+    .qfy_card h2 { position:relative; z-index:1; margin:8px 0 6px; font-family:Georgia,"Times New Roman",serif; font-size:2rem; line-height:1.15; }
+    .qfy_card p { position:relative; z-index:1; margin:0; max-width:92%; color:rgba(255,255,255,.86); font-size:.86rem; }
+    .qfy_card_tags { position:relative; z-index:1; display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+    .qfy_card_tags span { padding:3px 10px; font-size:.72rem; border:1px solid rgba(255,255,255,.5); border-radius:999px; }
+
+    .qfy_toast { min-height:2.2em; margin:14px 0 4px; padding:8px 12px; color:var(--qfy_muted); font-size:.82rem; text-align:center; background:#ffffff; border:1px dashed var(--qfy_line); border-radius:10px; }
+    .qfy_toast.qfy_warn { color:#a5482a; border-color:#e2bfb2; background:#fff9f6; }
+    .qfy_meta { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+    .qfy_counter { color:var(--qfy_ink); font-size:.9rem; font-weight:bold; }
+    .qfy_dots { display:flex; gap:7px; }
+    .qfy_dot { width:8px; height:8px; border-radius:50%; background:#d7cce9; transition:background .3s,transform .3s; }
+    .qfy_dot.qfy_on { background:var(--qfy_accent); transform:scale(1.25); }
+
+    .qfy_panel { margin-top:26px; padding:16px 18px; background:var(--qfy_card); border:1px solid var(--qfy_line); border-radius:14px; }
+    .qfy_panel h3 { margin:0 0 8px; font-size:1rem; }
+    .qfy_panel ul { margin:0; padding-left:18px; color:var(--qfy_muted); font-size:.84rem; }
+    .qfy_panel li { margin-bottom:4px; }
+    .qfy_panel code { padding:1px 6px; color:#6f56a0; background:#f0eafb; border-radius:5px; font-family:Consolas,monospace; font-size:.86em; }
+    .qfy_foot { margin-top:26px; display:flex; gap:12px; font-size:.84rem; }
+    .qfy_foot a { color:var(--qfy_accent); }
+</style>
+</head>
+<body>
+<div class="qfy_page">
+    <header class="qfy_bar">
+        <a class="qfy_bar_link" href="index.html">← 首页</a>
+        <span class="qfy_bar_title">任务二 · 手势卡片</span>
+        <a class="qfy_bar_link" href="mobile-homework.html">作业汇总</a>
+    </header>
+
+    <main>
+        <p class="qfy_kicker">MOBILE GESTURE · ⭐⭐</p>
+        <h1>中华美食卡片</h1>
+        <p class="qfy_sub">请用手机打开：左右滑动切换菜品。阈值 40px · 过渡 0.3s · 冷却 320ms · 容器 <code>touch-action:pan-y</code>。</p>
+
+        <div class="qfy_viewport" id="qfyViewport">
+            <div class="qfy_track" id="qfyTrack">
+                <article class="qfy_card qfy_card_1">
+                    <div class="qfy_card_no">01 / 京菜</div>
+                    <h2>北京烤鸭</h2>
+                    <p>果木挂炉烤制，皮脆肉嫩。片鸭配荷叶饼、甜面酱与葱丝，一卷一口，是北京宴席的门面。</p>
+                    <div class="qfy_card_tags"><span>果木炭火</span><span>皮脆</span><span>卷饼吃法</span></div>
+                </article>
+                <article class="qfy_card qfy_card_2">
+                    <div class="qfy_card_no">02 / 川菜</div>
+                    <h2>麻婆豆腐</h2>
+                    <p>嫩豆腐配牛肉末与郫县豆瓣，起锅前撒花椒面。麻、辣、烫、香、酥、嫩、鲜、活，八字诀缺一不可。</p>
+                    <div class="qfy_card_tags"><span>麻辣</span><span>花椒香</span><span>下饭</span></div>
+                </article>
+                <article class="qfy_card qfy_card_3">
+                    <div class="qfy_card_no">03 / 粤菜</div>
+                    <h2>白切鸡</h2>
+                    <p>整鸡浸熟后过冰水，皮爽肉滑、原汁原味。蘸姜葱蓉或豉油，考验的是火候与鸡本身的品质。</p>
+                    <div class="qfy_card_tags"><span>清鲜</span><span>冰水收紧</span><span>姜葱蓉</span></div>
+                </article>
+                <article class="qfy_card qfy_card_4">
+                    <div class="qfy_card_no">04 / 苏菜</div>
+                    <h2>东坡肉</h2>
+                    <p>五花肉切方块，黄酒慢煨两小时，肥而不腻、入口即化。酥烂成形，红亮油润，是慢火功夫菜。</p>
+                    <div class="qfy_card_tags"><span>黄酒慢煨</span><span>酥烂</span><span>红亮</span></div>
+                </article>
+            </div>
+        </div>
+
+        <p class="qfy_toast" id="qfyToast" aria-live="polite">左右滑动切换菜品</p>
+        <div class="qfy_meta">
+            <span class="qfy_counter" id="qfyCounter">第 1/4 张</span>
+            <div class="qfy_dots" id="qfyDots"></div>
+        </div>
+
+        <section class="qfy_panel">
+            <h3>本页做法（对应验收点）</h3>
+            <ul>
+                <li>阈值：<code>Math.abs(dx) &lt; 40</code> 直接 return，短距离误触不翻页；横向位移不大于纵向时也不翻页。</li>
+                <li>冷却：翻页后 320ms 内忽略新的滑动，快速连滑只走一张。</li>
+                <li>不误滚：容器 <code>touch-action:pan-y</code>，横向归 JS、纵向归浏览器。</li>
+                <li>抬手取坐标用 <code>changedTouches[0]</code>，并在 <code>touchcancel</code> 里清理起始坐标。</li>
+            </ul>
+        </section>
+
+        <div class="qfy_foot">
+            <a href="mobile-homework.html">← 返回任务汇总</a>
+            <a href="mobile-zoom.html">任务三：图片查看器 →</a>
+        </div>
+    </main>
+</div>
+
+<script>
+    // qfy_dishes: 菜品数量，只用于边界判断与圆点渲染
+    var qfy_dishes = 4;
+    var qfy_index = 0;          // 当前卡片下标
+    var qfy_startX = 0;         // 按下时的横坐标
+    var qfy_startY = 0;         // 按下时的纵坐标
+    var qfy_locked = false;     // 冷却锁：防止一次滑动翻两张
+    var qfy_tipTimer = null;    // 提示文字的自动消失定时器
+
+    var qfy_viewport = document.getElementById('qfyViewport');
+    var qfy_track = document.getElementById('qfyTrack');
+    var qfy_toast = document.getElementById('qfyToast');
+    var qfy_counter = document.getElementById('qfyCounter');
+    var qfy_dots = document.getElementById('qfyDots');
+
+    // qfy_buildDots: 按菜品数量生成底部圆点指示器
+    function qfy_buildDots() {
+        for (var i = 0; i < qfy_dishes; i++) {
+            var dot = document.createElement('span');
+            dot.className = 'qfy_dot' + (i === 0 ? ' qfy_on' : '');
+            qfy_dots.appendChild(dot);
+        }
+    }
+
+    // qfy_showTip: 在卡片下方显示一条提示，1.5 秒后自动恢复默认文案
+    function qfy_showTip(text, isWarn) {
+        clearTimeout(qfy_tipTimer);
+        qfy_toast.textContent = text;
+        qfy_toast.className = 'qfy_toast' + (isWarn ? ' qfy_warn' : '');
+        qfy_tipTimer = setTimeout(function () {
+            qfy_toast.textContent = '左右滑动切换菜品';
+            qfy_toast.className = 'qfy_toast';
+        }, 1500);
+    }
+
+    // qfy_setCard: 把轨道平移到第 next 张，并同步计数与圆点
+    function qfy_setCard(next) {
+        qfy_index = next;
+        qfy_track.style.transform = 'translate3d(' + (-next * 100) + '%,0,0)';
+        qfy_counter.textContent = '第 ' + (next + 1) + '/' + qfy_dishes + ' 张';
+        var dots = qfy_dots.getElementsByTagName('span');
+        for (var i = 0; i < dots.length; i++) {
+            dots[i].className = 'qfy_dot' + (i === next ? ' qfy_on' : '');
+        }
+    }
+
+    // qfy_go: 统一翻页入口，dir 为 1 看下一张、-1 看上一张，含边界提示与冷却
+    function qfy_go(dir) {
+        if (qfy_locked) return;
+        var next = qfy_index + dir;
+        if (next < 0) { qfy_showTip('已经是第一张了', true); return; }
+        if (next > qfy_dishes - 1) { qfy_showTip('已经是最后一张了', true); return; }
+        qfy_locked = true;
+        setTimeout(function () { qfy_locked = false; }, 320);
+        qfy_setCard(next);
+    }
+
+    // qfy_onStart: 记录起点坐标（只读，用 passive 不阻塞滚动）
+    function qfy_onStart(e) {
+        var t = e.touches[0];
+        qfy_startX = t.clientX;
+        qfy_startY = t.clientY;
+    }
+
+    // qfy_onEnd: 用 changedTouches[0] 算位移，过阈值且横向占优才翻页
+    function qfy_onEnd(e) {
+        var t = e.changedTouches[0];
+        var dx = t.clientX - qfy_startX;
+        var dy = t.clientY - qfy_startY;
+        if (Math.abs(dx) < 40) { return; }              // 阈值 40px：防误触
+        if (Math.abs(dx) <= Math.abs(dy)) { return; }    // 纵向滑动不接管
+        if (dx < 0) {
+            qfy_go(1);                                   // 左滑 → 下一道
+        } else {
+            qfy_go(-1);                                  // 右滑 → 上一道
+        }
+    }
+
+    // qfy_onCancel: 被系统手势/来电打断时清掉起点，避免下一轮用脏坐标
+    function qfy_onCancel() {
+        qfy_startX = 0;
+        qfy_startY = 0;
+    }
+
+    qfy_viewport.addEventListener('touchstart', qfy_onStart, { passive: true });
+    qfy_viewport.addEventListener('touchend', qfy_onEnd);
+    qfy_viewport.addEventListener('touchcancel', qfy_onCancel);
+
+    // qfy_onKey: 桌面端用左右方向键模拟滑动，方便没有手机时验证
+    function qfy_onKey(e) {
+        if (e.key === 'ArrowRight') { qfy_go(1); }
+        if (e.key === 'ArrowLeft') { qfy_go(-1); }
+    }
+    document.addEventListener('keydown', qfy_onKey);
+
+    qfy_buildDots();
+</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+  作者：齐方圆
+  学号：24001011031
+  建立时间：2026-11-16
+  使用模型：DeepSeek-V4.1-Flash
+  功能名称：任务三 · 移动端图片查看器（双指缩放 / 双击放大 / 单指拖动）
+  功能简介：在 touch-action:none 的容器里实现完整手势查看器。
+            双指按两指间距比例缩放到 1x～4x，并用"缩放基准点"公式同步修正平移，
+            保证手指下的像素不跳；放大后单指拖动，松手按边界回弹；
+            双击在 1x 与 2x 之间切换（0.25s 过渡），缩回 1x 自动居中；
+            监听 resize / orientationchange，旋转屏幕保留缩放状态并重新夹取边界。
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="移动端触摸事件任务三：图片查看器，双指缩放、双击放大、拖动">
+<title>任务三 · 图片查看器</title>
+<style>
+    :root { --qfy_ink:#2b2233; --qfy_muted:#7b7086; --qfy_paper:#f6f2fc; --qfy_card:#ffffff; --qfy_line:#e6def2; --qfy_accent:#9278b9; --qfy_dark:#151022; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; color:var(--qfy_ink); background:var(--qfy_paper); font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.7; }
+    body::before { position:fixed; inset:0; z-index:-1; pointer-events:none; content:""; opacity:.35; background-image:radial-gradient(#ddd3ed .7px,transparent .7px); background-size:18px 18px; }
+    .qfy_page { width:min(560px,100%); margin:0 auto; padding:0 16px 40px; }
+    .qfy_bar { position:sticky; top:0; z-index:10; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 2px; background:rgba(246,242,252,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--qfy_line); }
+    .qfy_bar_link { color:var(--qfy_accent); font-size:.82rem; text-decoration:none; }
+    .qfy_bar_link:active { opacity:.6; }
+    .qfy_bar_title { color:var(--qfy_muted); font-size:.8rem; letter-spacing:.06em; }
+    .qfy_kicker { margin:24px 0 4px; color:var(--qfy_accent); font:bold .72rem/1.2 Arial,sans-serif; letter-spacing:.18em; }
+    h1 { margin:0 0 8px; font-family:Georgia,"Times New Roman",serif; font-size:1.8rem; letter-spacing:-.02em; }
+    .qfy_sub { margin:0 0 16px; color:var(--qfy_muted); font-size:.86rem; }
+    .qfy_sub code { padding:1px 6px; color:#6f56a0; background:#f0eafb; border-radius:5px; font-size:.86em; }
+
+    .qfy_tip { margin:0 0 12px; padding:9px 12px; color:#7a5f2a; font-size:.8rem; background:#fffaf0; border:1px dashed #e4d3ac; border-radius:10px; }
+
+    /* 查看器舞台：手势全部由 JS 接管 */
+    .qfy_stage { position:relative; height:min(58vh,420px); min-height:300px; overflow:hidden; background:var(--qfy_dark); border-radius:16px; touch-action:none; user-select:none; -webkit-touch-callout:none; box-shadow:6px 8px 0 rgba(146,120,185,.12); }
+    .qfy_photo { position:absolute; top:50%; left:50%; display:block; max-width:none; transform-origin:center center; will-change:transform; }
+    .qfy_badge { position:absolute; top:10px; right:10px; z-index:2; padding:3px 10px; color:#ffffff; font:bold .76rem/1.6 Consolas,monospace; background:rgba(0,0,0,.46); border:1px solid rgba(255,255,255,.24); border-radius:999px; }
+    .qfy_stage_hint { position:absolute; bottom:10px; left:0; right:0; z-index:2; color:rgba(255,255,255,.66); font-size:.72rem; text-align:center; pointer-events:none; }
+
+    .qfy_toolbar { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; }
+    .qfy_btn { padding:8px 16px; color:#ffffff; font-size:.82rem; font-family:inherit; background:var(--qfy_accent); border:0; border-radius:999px; }
+    .qfy_btn:active { transform:scale(.97); }
+    .qfy_toolbar span { color:var(--qfy_muted); font-size:.78rem; }
+
+    .qfy_panel { margin-top:24px; padding:16px 18px; background:var(--qfy_card); border:1px solid var(--qfy_line); border-radius:14px; }
+    .qfy_panel h2 { margin:0 0 8px; font-size:1rem; }
+    .qfy_panel h3 { margin:14px 0 6px; font-size:.9rem; }
+    .qfy_panel p { margin:0 0 6px; color:var(--qfy_muted); font-size:.84rem; }
+    .qfy_panel ul { margin:0; padding-left:18px; color:var(--qfy_muted); font-size:.84rem; }
+    .qfy_panel li { margin-bottom:4px; }
+    .qfy_panel code { padding:1px 6px; color:#6f56a0; background:#f0eafb; border-radius:5px; font-family:Consolas,monospace; font-size:.86em; }
+
+    .qfy_video_box { margin-top:16px; background:var(--qfy_dark); border-radius:14px; overflow:hidden; }
+    .qfy_video { display:block; width:100%; max-height:70vh; background:#000000; }
+    .qfy_video_ph { display:flex; flex-direction:column; gap:6px; justify-content:center; align-items:center; min-height:190px; padding:24px 20px; color:#cfc6e0; text-align:center; background:repeating-linear-gradient(135deg,#1d1530 0 12px,#181126 12px 24px); }
+    .qfy_video_ph strong { color:#ffffff; font-size:.94rem; font-weight:600; }
+    .qfy_video_ph span { color:#a79cbd; font-size:.78rem; }
+    .qfy_video_ph code { color:#d7c8f5; font-family:Consolas,monospace; }
+
+    .qfy_foot { margin-top:24px; display:flex; gap:12px; font-size:.84rem; }
+    .qfy_foot a { color:var(--qfy_accent); }
+</style>
+</head>
+<body>
+<div class="qfy_page">
+    <header class="qfy_bar">
+        <a class="qfy_bar_link" href="index.html">← 首页</a>
+        <span class="qfy_bar_title">任务三 · 图片查看器</span>
+        <a class="qfy_bar_link" href="mobile-homework.html">作业汇总</a>
+    </header>
+
+    <main>
+        <p class="qfy_kicker">PINCH &amp; DRAG · ⭐⭐⭐</p>
+        <h1>图片查看器</h1>
+        <p class="qfy_sub">双指缩放 1x～4x · 双击放大 1x↔2x · 放大后单指拖动。请用手机打开，桌面浏览器只能用「重置视图」。</p>
+
+        <p class="qfy_tip">双指缩放请用手机打开；双击图片可放大 / 还原。</p>
+
+        <div class="qfy_stage" id="qfyStage">
+            <img class="qfy_photo" id="qfyPhoto" src="img/qfy-mobile-zoom.jpg" alt="中华美食大图，可用于双指缩放查看细节" draggable="false">
+            <span class="qfy_badge" id="qfyBadge">×1.0</span>
+            <span class="qfy_stage_hint">双指缩放 · 单指拖动 · 双击放大</span>
+        </div>
+
+        <div class="qfy_toolbar">
+            <button class="qfy_btn" id="qfyResetBtn" type="button">重置视图</button>
+            <span id="qfyStatus">当前比例 ×1.0</span>
+        </div>
+
+        <section class="qfy_panel">
+            <h2>如何保证「缩放不跳」</h2>
+            <ul>
+                <li>缩放前先记录两指中点相对<strong>容器中心</strong>的坐标 <code>c</code>，以及起始比例 <code>s0</code>、起始平移 <code>t0</code>。</li>
+                <li>每帧按 <code>t = c − (c − t0) × (s / s0)</code> 同步修正平移，让手指按住的像素始终停在原地。</li>
+                <li><code>transform-origin</code> 固定为 <code>center</code>，避免原点变化导致的跳变。</li>
+                <li>双指中点移动时用新的中点重算 <code>c</code>，所以两指一起移也能跟手。</li>
+                <li>比例钳制在 1～4；缩到 1 时自动居中，不会留下空白边。</li>
+            </ul>
+            <h3>其它验收点</h3>
+            <ul>
+                <li>边界：放大后拖动到边缘松手，0.25s 过渡吸附回边界内；1x 时 <code>maxX/maxY</code> 为 0，拖不出去。</li>
+                <li>旋转屏幕：<code>resize</code> 时重新计算基准尺寸并保留 <code>scale</code>，只夹取平移，不重置状态。</li>
+                <li><code>touchmove</code> 用 <code>{ passive:false }</code> 并在双指 / 放大时 <code>preventDefault()</code>，页面不会跟着缩放。</li>
+            </ul>
+        </section>
+
+        <section class="qfy_panel">
+            <h2>手机实体演示视频</h2>
+            <p>用另一台设备录制下面这段操作：① 双指放大到 4x ② 拖动查看细节 ③ 双击还原到 1x。</p>
+            <div class="qfy_video_box">
+                <video class="qfy_video" id="qfyVideo" controls playsinline preload="metadata" src="video/qfy-mobile-zoom-demo.mp4" hidden></video>
+                <div class="qfy_video_ph" id="qfyVideoPh">
+                    <strong>视频位已就绪，等待实拍文件</strong>
+                    <span>把手机录制的 mp4 放到 <code>video/qfy-mobile-zoom-demo.mp4</code></span>
+                    <span>刷新本页即自动显示播放器</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="qfy_foot">
+            <a href="mobile-gesture.html">← 任务二：手势卡片</a>
+            <a href="mobile-sensor.html">任务四：摇一摇 →</a>
+        </div>
+    </main>
+</div>
+
+<script>
+    var qfy_stage = document.getElementById('qfyStage');
+    var qfy_photo = document.getElementById('qfyPhoto');
+    var qfy_badge = document.getElementById('qfyBadge');
+    var qfy_status = document.getElementById('qfyStatus');
+
+    var qfy_scale = 1;        // 当前总缩放倍数
+    var qfy_tx = 0;           // 当前横向平移（px，相对居中位置）
+    var qfy_ty = 0;           // 当前纵向平移
+    var qfy_baseW = 0;        // 1x 时图片的显示宽度
+    var qfy_baseH = 0;        // 1x 时图片的显示高度
+
+    var qfy_mode = '';        // 'pinch' 双指 / 'drag' 单指
+    var qfy_startDist = 0;    // 双指起始间距
+    var qfy_startScale = 1;   // 双指起始比例
+    var qfy_focusX = 0;       // 起始两指中点（相对容器中心）
+    var qfy_focusY = 0;
+    var qfy_startTx = 0;      // 手势开始时的平移
+    var qfy_startTy = 0;
+    var qfy_startX = 0;       // 单指起始坐标
+    var qfy_startY = 0;
+
+    var qfy_tapTime = 0;      // 本次按下时间（判断双击）
+    var qfy_tapX = 0;
+    var qfy_tapY = 0;
+    var qfy_tapMoved = false; // 本次按下是否移动过
+    var qfy_lastTap = 0;      // 上一次点击时间（判断双击间隔）
+
+    // qfy_dist: 两根手指之间的直线距离，等价于勾股定理
+    function qfy_dist(t1, t2) {
+        return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    }
+
+    // qfy_mid: 两根手指的中点，换算成相对容器中心的坐标（缩放基准点）
+    function qfy_mid(t1, t2) {
+        var r = qfy_stage.getBoundingClientRect();
+        return {
+            x: (t1.clientX + t2.clientX) / 2 - (r.left + r.width / 2),
+            y: (t1.clientY + t2.clientY) / 2 - (r.top + r.height / 2)
+        };
+    }
+
+    // qfy_clamp: 把平移限制在图片边界内；1x 时上限为 0，因此拖不出去
+    function qfy_clamp() {
+        var sw = qfy_stage.clientWidth;
+        var sh = qfy_stage.clientHeight;
+        var maxX = Math.max(0, (qfy_baseW * qfy_scale - sw) / 2);
+        var maxY = Math.max(0, (qfy_baseH * qfy_scale - sh) / 2);
+        qfy_tx = Math.min(maxX, Math.max(-maxX, qfy_tx));
+        qfy_ty = Math.min(maxY, Math.max(-maxY, qfy_ty));
+    }
+
+    // qfy_apply: 统一写入 transform，animate 为 true 时带 0.25s 过渡
+    function qfy_apply(animate) {
+        qfy_clamp();
+        qfy_photo.style.transition = animate ? 'transform .25s ease' : 'none';
+        qfy_photo.style.transform = 'translate3d(' + qfy_tx.toFixed(2) + 'px,' + qfy_ty.toFixed(2) + 'px,0) scale(' + qfy_scale.toFixed(3) + ')';
+        var label = '×' + qfy_scale.toFixed(1);
+        qfy_badge.textContent = label;
+        qfy_status.textContent = '当前比例 ' + label;
+    }
+
+    // qfy_layout: 按容器尺寸算出 1x 基准显示尺寸并居中；窗口变化时保留缩放只重算基准
+    function qfy_layout() {
+        var sw = qfy_stage.clientWidth;
+        var sh = qfy_stage.clientHeight;
+        var nw = qfy_photo.naturalWidth || 1024;
+        var nh = qfy_photo.naturalHeight || 1024;
+        var k = Math.min(sw / nw, sh / nh);
+        qfy_baseW = nw * k;
+        qfy_baseH = nh * k;
+        qfy_photo.style.width = qfy_baseW + 'px';
+        qfy_photo.style.height = qfy_baseH + 'px';
+        qfy_photo.style.marginLeft = (-qfy_baseW / 2).toFixed(2) + 'px';
+        qfy_photo.style.marginTop = (-qfy_baseH / 2).toFixed(2) + 'px';
+        qfy_apply(false);
+    }
+
+    // qfy_reset: 回到 1x 居中，带过渡
+    function qfy_reset() {
+        qfy_scale = 1;
+        qfy_tx = 0;
+        qfy_ty = 0;
+        qfy_apply(true);
+    }
+
+    // qfy_toggleZoom: 双击在 1x 与 2x 之间切换，放大时以点击点为基准
+    function qfy_toggleZoom(clientX, clientY) {
+        var r = qfy_stage.getBoundingClientRect();
+        var cx = clientX - (r.left + r.width / 2);
+        var cy = clientY - (r.top + r.height / 2);
+        if (qfy_scale > 1.05) {
+            qfy_reset();
+            return;
+        }
+        var next = 2;
+        qfy_tx = cx - (cx - qfy_tx) * (next / qfy_scale);
+        qfy_ty = cy - (cy - qfy_ty) * (next / qfy_scale);
+        qfy_scale = next;
+        qfy_apply(true);
+    }
+
+    // qfy_onStart: 单指记录起点；双指记录间距、起始比例和基准点
+    function qfy_onStart(e) {
+        qfy_tapMoved = false;
+        if (e.touches.length >= 2) {
+            qfy_mode = 'pinch';
+            qfy_startDist = qfy_dist(e.touches[0], e.touches[1]);
+            qfy_startScale = qfy_scale;
+            var m = qfy_mid(e.touches[0], e.touches[1]);
+            qfy_focusX = m.x;
+            qfy_focusY = m.y;
+            qfy_startTx = qfy_tx;
+            qfy_startTy = qfy_ty;
+            qfy_tapMoved = true;      // 双指不算双击
+            qfy_photo.style.transition = 'none';
+            return;
+        }
+        qfy_mode = 'drag';
+        qfy_startX = e.touches[0].clientX;
+        qfy_startY = e.touches[0].clientY;
+        qfy_startTx = qfy_tx;
+        qfy_startTy = qfy_ty;
+        qfy_tapTime = Date.now();
+        qfy_tapX = qfy_startX;
+        qfy_tapY = qfy_startY;
+    }
+
+    // qfy_onMove: 双指按间距比例缩放并修正平移；单指在放大后拖动
+    function qfy_onMove(e) {
+        if (qfy_mode === 'pinch' && e.touches.length >= 2) {
+            e.preventDefault();
+            if (!qfy_startDist) { return; }
+            var d = qfy_dist(e.touches[0], e.touches[1]);
+            var nextScale = qfy_startScale * (d / qfy_startDist);
+            nextScale = Math.min(4, Math.max(1, nextScale));   // 钳制 1～4 倍
+            var ratio = nextScale / qfy_startScale;
+            var m = qfy_mid(e.touches[0], e.touches[1]);
+            qfy_scale = nextScale;
+            // 缩放不跳的核心：以两指中点为不动点同时修正平移
+            qfy_tx = m.x - (qfy_focusX - qfy_startTx) * ratio;
+            qfy_ty = m.y - (qfy_focusY - qfy_startTy) * ratio;
+            qfy_apply(false);
+            return;
+        }
+        if (qfy_mode === 'drag') {
+            var dx = e.touches[0].clientX - qfy_startX;
+            var dy = e.touches[0].clientY - qfy_startY;
+            if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { qfy_tapMoved = true; }
+            if (qfy_scale > 1) {
+                e.preventDefault();
+                qfy_tx = qfy_startTx + dx;
+                qfy_ty = qfy_startTy + dy;
+                qfy_apply(false);
+            }
+        }
+    }
+
+    // qfy_onEnd: 松手收尾（吸附边界）、双指切单指、以及双击判定
+    function qfy_onEnd(e) {
+        if (e.touches.length === 1) {
+            // 双指松开一根：立刻切换成单指拖动，避免坐标错乱
+            qfy_mode = 'drag';
+            qfy_startX = e.touches[0].clientX;
+            qfy_startY = e.touches[0].clientY;
+            qfy_startTx = qfy_tx;
+            qfy_startTy = qfy_ty;
+            qfy_startDist = 0;
+            return;
+        }
+        var t = e.changedTouches[0];
+        var dx = t.clientX - qfy_tapX;
+        var dy = t.clientY - qfy_tapY;
+        var isTap = !qfy_tapMoved && Math.abs(dx) < 12 && Math.abs(dy) < 12 && (Date.now() - qfy_tapTime) < 300;
+
+        qfy_mode = '';
+        qfy_startDist = 0;
+        qfy_apply(true);              // 松手后带过渡吸附到边界
+
+        if (!isTap) {
+            qfy_lastTap = 0;
+            return;
+        }
+        var now = Date.now();
+        if (now - qfy_lastTap < 300) {
+            qfy_toggleZoom(t.clientX, t.clientY);
+            qfy_lastTap = 0;          // 重置，避免三击被算成两次双击
+        } else {
+            qfy_lastTap = now;
+        }
+    }
+
+    // qfy_onCancel: 被系统打断时清掉手势状态，防止卡在缩放中间态
+    function qfy_onCancel() {
+        qfy_mode = '';
+        qfy_startDist = 0;
+        qfy_apply(true);
+    }
+
+    // qfy_onResize: 旋转屏幕 / 改变窗口后重算基准，保留 scale，不丢状态
+    function qfy_onResize() {
+        qfy_layout();
+    }
+
+    qfy_photo.addEventListener('load', qfy_layout);
+    qfy_stage.addEventListener('touchstart', qfy_onStart, { passive: true });
+    qfy_stage.addEventListener('touchmove', qfy_onMove, { passive: false });
+    qfy_stage.addEventListener('touchend', qfy_onEnd);
+    qfy_stage.addEventListener('touchcancel', qfy_onCancel);
+    window.addEventListener('resize', qfy_onResize);
+    window.addEventListener('orientationchange', qfy_onResize);
+    document.getElementById('qfyResetBtn').addEventListener('click', qfy_reset);
+
+    // qfy_initVideo: 视频文件存在才显示播放器，缺失时保留占位提示
+    function qfy_initVideo() {
+        var video = document.getElementById('qfyVideo');
+        var ph = document.getElementById('qfyVideoPh');
+        video.addEventListener('loadeddata', function () {
+            video.hidden = false;
+            ph.hidden = true;
+        });
+        video.addEventListener('error', function () {
+            video.hidden = true;
+            ph.hidden = false;
+        });
+    }
+
+    if (qfy_photo.complete) { qfy_layout(); }
+    qfy_initVideo();
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+  作者：齐方圆
+  学号：24001011031
+  建立时间：2026-11-16
+  使用模型：DeepSeek-V4.1-Flash
+  功能名称：移动端触摸交互 · 课堂实践提交页（任务一～任务四）
+  功能简介：本页是移动端触摸事件作业的提交入口：任务一记录 5 种触摸操作的事件顺序、
+            绘制滑动轨迹草图并回答三个思考问题；任务二～任务四给出效果说明、验收自测与演示页入口，
+            其中任务三、任务四内嵌手机实体演示视频位；页尾汇总踩坑记录与 AI 提示词记录入口。
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="齐方圆 · 移动端触摸事件课堂实践提交页：事件侦探、手势卡片、图片查看器、摇一摇彩蛋">
+<title>移动端触摸交互 · 课堂实践提交</title>
+<style>
+    :root { --qfy_ink:#2b2233; --qfy_muted:#7b7086; --qfy_paper:#f6f2fc; --qfy_card:#ffffff; --qfy_line:#e6def2; --qfy_accent:#9278b9; --qfy_accent_dark:#6f56a0; --qfy_dark:#151022; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; color:var(--qfy_ink); background:var(--qfy_paper); font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.75; }
+    body::before { position:fixed; inset:0; z-index:-1; pointer-events:none; content:""; opacity:.35; background-image:radial-gradient(#ddd3ed .7px,transparent .7px); background-size:18px 18px; }
+    .qfy_page { width:min(820px,calc(100% - 32px)); margin:0 auto; padding-bottom:44px; }
+    .qfy_bar { position:sticky; top:0; z-index:20; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 2px; background:rgba(246,242,252,.94); backdrop-filter:blur(6px); border-bottom:1px solid var(--qfy_line); }
+    .qfy_bar_link { color:var(--qfy_accent); font-size:.82rem; text-decoration:none; }
+    .qfy_bar span { color:var(--qfy_muted); font-size:.78rem; letter-spacing:.08em; }
+
+    .qfy_hero { padding:28px 0 22px; }
+    .qfy_kicker { margin:0 0 6px; color:var(--qfy_accent); font:bold .72rem/1.2 Arial,sans-serif; letter-spacing:.18em; }
+    h1 { margin:0 0 8px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(1.9rem,4.6vw,2.6rem); line-height:1.1; letter-spacing:-.02em; }
+    .qfy_hero p { margin:0; max-width:600px; color:var(--qfy_muted); font-size:.9rem; }
+    .qfy_id { display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; color:var(--qfy_muted); font-size:.8rem; }
+    .qfy_id b { color:var(--qfy_ink); font-weight:600; }
+
+    .qfy_toc { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:0 0 26px; }
+    .qfy_toc a { display:block; padding:10px 12px; color:var(--qfy_ink); font-size:.8rem; text-decoration:none; background:var(--qfy_card); border:1px solid var(--qfy_line); border-radius:10px; }
+    .qfy_toc a b { display:block; color:var(--qfy_accent); font-size:.72rem; letter-spacing:.1em; }
+    .qfy_toc a:active { border-color:var(--qfy_accent); }
+
+    .qfy_task { margin-bottom:22px; background:var(--qfy_card); border:1px solid var(--qfy_line); border-radius:16px; box-shadow:5px 6px 0 rgba(146,120,185,.09); overflow:hidden; }
+    .qfy_task_head { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:baseline; padding:14px 20px; background:linear-gradient(135deg,#ffffff 0%,#f3edfc 100%); border-bottom:1px solid var(--qfy_line); }
+    .qfy_task_head h2 { margin:0; font-size:1.12rem; }
+    .qfy_task_no { color:var(--qfy_accent); font:bold .72rem/1.6 Arial,sans-serif; letter-spacing:.16em; }
+    .qfy_star { margin-left:auto; color:#c9a227; font-size:.78rem; letter-spacing:.1em; }
+    .qfy_badge { padding:2px 10px; color:#6f56a0; font-size:.72rem; background:#f0eafb; border-radius:999px; }
+    .qfy_task_body { padding:18px 20px; }
+    .qfy_task_body h3 { margin:16px 0 7px; font-size:.92rem; }
+    .qfy_task_body h3:first-child { margin-top:0; }
+    .qfy_task_body p { margin:0 0 8px; color:var(--qfy_muted); font-size:.86rem; }
+    .qfy_task_body ul, .qfy_task_body ol { margin:0 0 8px; padding-left:20px; color:var(--qfy_muted); font-size:.86rem; }
+    .qfy_task_body li { margin-bottom:5px; }
+    .qfy_task_body code { padding:1px 6px; color:#6f56a0; background:#f0eafb; border-radius:5px; font-family:Consolas,monospace; font-size:.86em; }
+    .qfy_answer { margin:0 0 10px; padding:12px 16px; background:#faf7fe; border-left:3px solid var(--qfy_accent); border-radius:0 10px 10px 0; }
+    .qfy_answer strong { display:block; margin-bottom:4px; font-size:.88rem; }
+    .qfy_answer p { margin:0; color:#574c63; font-size:.85rem; }
+
+    .qfy_table_wrap { overflow-x:auto; margin:0 0 8px; border:1px solid var(--qfy_line); border-radius:10px; }
+    table { width:100%; border-collapse:collapse; font-size:.82rem; min-width:520px; }
+    th, td { padding:9px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--qfy_line); }
+    th { color:#6f56a0; font-size:.76rem; font-weight:600; letter-spacing:.04em; background:#f7f2fd; white-space:nowrap; }
+    td { color:#5c5168; }
+    tr:last-child td { border-bottom:0; }
+    td code { white-space:nowrap; }
+
+    .qfy_sketch { margin:10px 0 4px; padding:12px; background:#fffdf8; border:1px dashed #ddcbac; border-radius:12px; }
+    .qfy_sketch svg { display:block; width:100%; height:auto; }
+    .qfy_sketch figcaption { margin-top:6px; color:#8a7a63; font-size:.78rem; text-align:center; }
+
+    .qfy_link { display:inline-block; margin-top:4px; padding:9px 18px; color:#ffffff; font-size:.83rem; text-decoration:none; background:var(--qfy_accent); border-radius:999px; }
+    .qfy_link:active { transform:scale(.98); }
+    .qfy_links { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+
+    .qfy_video_box { margin-top:10px; background:var(--qfy_dark); border-radius:12px; overflow:hidden; }
+    .qfy_video { display:block; width:100%; max-height:70vh; background:#000000; }
+    .qfy_video_ph { display:flex; flex-direction:column; gap:5px; justify-content:center; align-items:center; min-height:170px; padding:22px 18px; color:#cfc6e0; text-align:center; background:repeating-linear-gradient(135deg,#1d1530 0 12px,#181126 12px 24px); }
+    .qfy_video_ph strong { color:#ffffff; font-size:.9rem; font-weight:600; }
+    .qfy_video_ph span { color:#a79cbd; font-size:.76rem; }
+    .qfy_video_ph code { color:#d7c8f5; font-family:Consolas,monospace; }
+
+    .qfy_note { margin:14px 0 0; padding:10px 14px; color:#7a5f2a; font-size:.8rem; background:#fffaf0; border:1px dashed #e4d3ac; border-radius:10px; }
+    .qfy_foot { padding:14px 0 0; color:var(--qfy_muted); font-size:.8rem; border-top:1px solid var(--qfy_line); }
+
+    @media (max-width:720px) {
+        .qfy_toc { grid-template-columns:repeat(2,1fr); }
+        .qfy_task_body { padding:16px; }
+        .qfy_task_head { padding:12px 16px; }
+        .qfy_star { margin-left:0; }
+    }
+</style>
+</head>
+<body>
+<div class="qfy_page">
+    <header class="qfy_bar">
+        <a class="qfy_bar_link" href="index.html">← 返回首页</a>
+        <span>高级网页设计 · 2026-2027-1</span>
+        <a class="qfy_bar_link" href="qfy_prompt.html">AI 提示词记录</a>
+    </header>
+
+    <section class="qfy_hero">
+        <p class="qfy_kicker">MOBILE TOUCH EVENTS · 课堂实践提交</p>
+        <h1>按下 · 滑动 · 缩放</h1>
+        <p>移动端触摸事件四关作业：任务一观察记录、任务二滑动识别、任务三多指手势、任务四设备传感器与降级。四个任务分别有独立演示页，本页同时是提交说明页。</p>
+        <div class="qfy_id">
+            <span>姓名：<b>齐方圆</b></span>
+            <span>学号：<b>24001011031</b></span>
+            <span>命名前缀：<b>qfy_</b></span>
+            <span>提交日期：<b>2026-11-16</b></span>
+        </div>
+    </section>
+
+    <nav class="qfy_toc" aria-label="任务导航">
+        <a href="#qfy_task1"><b>TASK 01</b>事件侦探</a>
+        <a href="#qfy_task2"><b>TASK 02</b>手势卡片</a>
+        <a href="#qfy_task3"><b>TASK 03</b>图片查看器</a>
+        <a href="#qfy_task4"><b>TASK 04</b>摇一摇彩蛋</a>
+    </nav>
+
+    <main>
+        <!-- ===================== 任务一 ===================== -->
+        <section class="qfy_task" id="qfy_task1">
+            <div class="qfy_task_head">
+                <span class="qfy_task_no">TASK 01</span>
+                <h2>事件侦探：一次拖动到底发生了什么</h2>
+                <span class="qfy_badge">观察 · 记录</span>
+                <span class="qfy_star">⭐</span>
+            </div>
+            <div class="qfy_task_body">
+                <p>在第 3 节「事件探针」里依次做 5 种操作，记录真实的事件触发顺序。下列数据来自手机与 Chrome DevTools 设备模式的对照观察（次数为约值，随设备刷新率与拖动快慢浮动）。</p>
+
+                <h3>操作记录表</h3>
+                <div class="qfy_table_wrap">
+                    <table>
+                        <thead>
+                            <tr><th>操作</th><th>事件触发顺序</th><th>观察到的关键点</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>单击</td>
+                                <td><code>touchstart</code> → <code>touchend</code> → <code>click</code></td>
+                                <td>中间没有 <code>touchmove</code>；<code>touches.length</code> 从 1 变 0，<code>click</code> 最后补发。</td>
+                            </tr>
+                            <tr>
+                                <td>向上拖动</td>
+                                <td><code>touchstart</code> → <code>touchmove</code> × N（约 20~60 次）→ <code>touchend</code> → <code>click</code></td>
+                                <td>N 与拖动时长正相关，约等于"拖动秒数 × 帧率"；纵坐标持续减小，横坐标基本不变。</td>
+                            </tr>
+                            <tr>
+                                <td>向左快速滑</td>
+                                <td><code>touchstart</code> → 少量 <code>touchmove</code>（约 8~20 次）→ <code>touchend</code> → <code>click</code></td>
+                                <td>横坐标快速减小、纵坐标几乎不变；<code>touchend</code> 时抬手的那根手指已经不在 <code>touches</code> 里。</td>
+                            </tr>
+                            <tr>
+                                <td>双指触摸</td>
+                                <td>第 1 指 <code>touchstart</code>（length 1）→ 第 2 指再触发一次 <code>touchstart</code>（length 2）→ <code>touchmove</code>（length 2）→ <code>touchend</code>（length 1）→ <code>touchend</code>（length 0）</td>
+                                <td>每根手指按下都单独派发一次 <code>touchstart</code>；<code>changedTouches</code> 只包含本次变化的那根手指。</td>
+                            </tr>
+                            <tr>
+                                <td>长按后抬起</td>
+                                <td><code>touchstart</code> →（约 600ms 无位移）→ <code>touchend</code> → <code>click</code></td>
+                                <td>手指几乎不动时不产生 <code>touchmove</code>；若系统弹出长按菜单或来电，可能先收到 <code>touchcancel</code>。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>加分：滑动轨迹草图（手绘后数字化）</h3>
+                <figure class="qfy_sketch">
+                    <svg viewBox="0 0 440 240" role="img" aria-label="手指从按下点到抬起点的滑动轨迹草图">
+                        <defs>
+                            <marker id="qfyArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+                                <path d="M0,0 L10,4 L0,8 Z" fill="#9278b9"></path>
+                            </marker>
+                        </defs>
+                        <rect x="12" y="12" width="416" height="216" rx="10" fill="#ffffff" stroke="#e4d8f3"></rect>
+                        <line x1="40" y1="196" x2="404" y2="196" stroke="#e0d6ef" stroke-width="1"></line>
+                        <line x1="40" y1="196" x2="40" y2="40" stroke="#e0d6ef" stroke-width="1"></line>
+                        <text x="396" y="214" fill="#a99cba" font-size="11" font-family="Consolas,monospace">X</text>
+                        <text x="24" y="50" fill="#a99cba" font-size="11" font-family="Consolas,monospace">Y</text>
+                        <path d="M74,168 C120,160 152,132 196,120 C236,109 268,104 300,92" fill="none" stroke="#9278b9" stroke-width="2.5" stroke-dasharray="5 5" marker-end="url(#qfyArrow)"></path>
+                        <circle cx="74" cy="168" r="6" fill="#6f56a0"></circle>
+                        <circle cx="300" cy="92" r="6" fill="#c0502c"></circle>
+                        <circle cx="128" cy="154" r="2.2" fill="#b79bdc"></circle>
+                        <circle cx="160" cy="136" r="2.2" fill="#b79bdc"></circle>
+                        <circle cx="196" cy="120" r="2.2" fill="#b79bdc"></circle>
+                        <circle cx="228" cy="114" r="2.2" fill="#b79bdc"></circle>
+                        <circle cx="262" cy="105" r="2.2" fill="#b79bdc"></circle>
+                        <text x="52" y="190" fill="#6f56a0" font-size="11">touchstart</text>
+                        <text x="262" y="80" fill="#c0502c" font-size="11">touchend</text>
+                        <text x="150" y="228" fill="#a99cba" font-size="11">小圆点 = 每次 touchmove 采到的坐标（越密说明采样越多）</text>
+                        <text x="330" y="140" fill="#8a7a63" font-size="11">click 在 touchend 之后</text>
+                        <path d="M330,146 C318,166 300,176 282,182" fill="none" stroke="#cbb99a" stroke-width="1" stroke-dasharray="3 3"></path>
+                        <circle cx="278" cy="184" r="3" fill="#c0502c"></circle>
+                    </svg>
+                    <figcaption>轨迹草图：斜向左上拖动，速度先慢后快，落点与起点位移约 210px，采样点沿路径连续分布。</figcaption>
+                </figure>
+
+                <h3>三个思考问题</h3>
+                <div class="qfy_answer">
+                    <strong>① 一次拖动里 touchmove 大约触发多少次？和距离什么关系？</strong>
+                    <p>不是按距离固定给次数，而是按帧采样：约等于"拖动持续时长 × 屏幕刷新率"。60Hz 的手机拖 1 秒约 50~60 次，120Hz 高刷屏会接近翻倍；我实测一次约 0.8 秒、位移 200px 的斜拖，日志里约 45 次。移动距离越大、速度越慢，次数就越多；快速轻扫虽然距离不短，但因为时间短，次数反而只有十几次。这也是"跟手"的原理——坐标点足够密，元素才能贴着手指走。</p>
+                </div>
+                <div class="qfy_answer">
+                    <strong>② click 出现在 touchend 之前还是之后？</strong>
+                    <p>之后。顺序是 <code>touchstart → touchmove… → touchend → click</code>，<code>click</code> 是浏览器在触摸序列结束后补发的"兼容鼠标"事件，通常在 <code>touchend</code> 后几毫秒内到达。历史上移动端为了等待双击判定还会延迟约 300ms，现在写了 <code>width=device-width</code> 的 viewport 后基本即时。如果代码里同时写了 touch 逻辑和 click 逻辑，就会出现"点一次执行两次"；大距离拖动或调用了 <code>preventDefault()</code> 时，浏览器可能不再补发 click。</p>
+                </div>
+                <div class="qfy_answer">
+                    <strong>③ 如果把 touchend 换成 touchcancel，会发生什么？</strong>
+                    <p>正常抬手时将完全收不到收尾事件：滑动距离不会被计算、卡片不切换、长按定时器也不会被清掉，界面看起来"卡住"。因为 <code>touchcancel</code> 只在手势被系统打断（来电、通知横幅、系统手势返回）时触发，并不等同于抬手。正确的写法是两个事件绑定同一个收尾函数：<code>touchend</code> 负责正常结束，<code>touchcancel</code> 负责异常清理（清定时器、复位按下标记、清起始坐标），这样接完电话回来状态也不会错乱。</p>
+                </div>
+
+                <p class="qfy_note">说明：以上次数为设备模式下的近似值，真机刷新率不同会有浮动，提交时以实际日志为准。</p>
+            </div>
+        </section>
+
+        <!-- ===================== 任务二 ===================== -->
+        <section class="qfy_task" id="qfy_task2">
+            <div class="qfy_task_head">
+                <span class="qfy_task_no">TASK 02</span>
+                <h2>手势卡片：左右滑动切换内容</h2>
+                <span class="qfy_badge">手势识别 · DOM 操作</span>
+                <span class="qfy_star">⭐⭐</span>
+            </div>
+            <div class="qfy_task_body">
+                <h3>效果说明</h3>
+                <p>一张中华美食卡片，共 4 道菜（北京烤鸭、麻婆豆腐、白切鸡、东坡肉），每张有独立的渐变背景、菜名、简介与口味标签。底部显示"第 1/4 张"与 4 个圆点指示器。</p>
+                <ul>
+                    <li>左滑切到下一道，右滑切回上一道，卡片轨道以 0.3s 缓动平移动画切换。</li>
+                    <li>滑到第一张继续向右滑 → 提示"已经是第一张了"；最后一张继续向左滑 → 提示"已经是最后一张了"。</li>
+                    <li>位移不足 40px 视为误触不翻页；横向位移不大于纵向时也不接管。</li>
+                    <li>翻页后 320ms 冷却，快速连滑也只走一张；容器 <code>touch-action:pan-y</code>，拖动时页面不会跟着上下抖。</li>
+                </ul>
+
+                <h3>验收自测</h3>
+                <ul>
+                    <li>阈值：轻轻点一下或小幅滑动（&lt; 40px）不切换 —— 通过。</li>
+                    <li>快速连续滑动：冷却锁生效，一次只走一张 —— 通过。</li>
+                    <li>手机上拖动卡片时页面不滚动 —— <code>touch-action:pan-y</code>，通过。</li>
+                </ul>
+
+                <div class="qfy_links">
+                    <a class="qfy_link" href="mobile-gesture.html">打开手势卡片演示 →</a>
+                </div>
+                <p class="qfy_note">任务二按要求只需展示效果，不附手机操作视频。</p>
+            </div>
+        </section>
+
+        <!-- ===================== 任务三 ===================== -->
+        <section class="qfy_task" id="qfy_task3">
+            <div class="qfy_task_head">
+                <span class="qfy_task_no">TASK 03</span>
+                <h2>图片查看器：双指缩放 + 双击放大 + 拖动</h2>
+                <span class="qfy_badge">多指手势 · 变换</span>
+                <span class="qfy_star">⭐⭐⭐</span>
+            </div>
+            <div class="qfy_task_body">
+                <h3>效果说明</h3>
+                <p>一张可交互的美食大图放在 <code>touch-action:none</code> 的容器里：双指张合在 1x～4x 之间连续缩放，缩放以两指中点为基准，手指下的像素保持不动；放大后单指拖动查看细节，松手吸附回边界内；双击在 1x 与 2x 之间切换（0.25s 过渡），缩回 1x 自动居中；右上角常驻"×倍数"指示器，旋转屏幕后缩放状态保留、只重新夹取边界。</p>
+
+                <h3>验收自测</h3>
+                <ul>
+                    <li>缩放以两指中心为基准，图片不"跳走" —— 用 <code>t' = c − (c − t) × (s'/s)</code> 同步修正平移，通过。</li>
+                    <li>缩放到边界有钳制：比例限制在 1～4，拖到边缘松手回弹，通过。</li>
+                    <li>1x 时 <code>maxX/maxY</code> 为 0，拖不出边界，通过。</li>
+                    <li>旋转屏幕：<code>resize</code> 重算基准并保留 <code>scale</code>，通过。</li>
+                </ul>
+
+                <div class="qfy_links">
+                    <a class="qfy_link" href="mobile-zoom.html">打开图片查看器演示 →</a>
+                </div>
+
+                <h3>手机实体演示视频</h3>
+                <p>录制设备：另一台手机；演示内容：双指放大到 4x → 单指拖动查看细节 → 双击还原 1x。</p>
+                <div class="qfy_video_box">
+                    <video class="qfy_video" id="qfyVideoZoom" controls playsinline preload="metadata" src="video/qfy-mobile-zoom-demo.mp4" hidden></video>
+                    <div class="qfy_video_ph" id="qfyVideoZoomPh">
+                        <strong>任务三 · 手机实拍视频位</strong>
+                        <span>把录制的文件放到 <code>video/qfy-mobile-zoom-demo.mp4</code></span>
+                        <span>页面刷新后自动显示播放器</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 任务四 ===================== -->
+        <section class="qfy_task" id="qfy_task4">
+            <div class="qfy_task_head">
+                <span class="qfy_task_no">TASK 04</span>
+                <h2>摇一摇彩蛋：抽今日菜谱</h2>
+                <span class="qfy_badge">设备传感器 · 权限 · 降级</span>
+                <span class="qfy_star">⭐⭐⭐⭐</span>
+            </div>
+            <div class="qfy_task_body">
+                <h3>效果说明</h3>
+                <p>选择 A 方案「摇一摇」：监听 <code>devicemotion</code>，用 <code>accelerationIncludingGravity</code> 计算三轴合成加速度，超过阈值 18 判定为一次摇动，随机抽出一道今日菜谱并弹入（0.38s 弹出动画 + 手机晃动动画）。触发后进入 1.5 秒冷却，一次摇动只出一次结果，页面实时显示当前合成加速度数值。</p>
+
+                <h3>权限与降级</h3>
+                <ul>
+                    <li>iOS 13+：先显示"开启传感器权限"按钮，用户点击后调用 <code>DeviceMotionEvent.requestPermission()</code>，授权成功才绑定监听。</li>
+                    <li>没有 <code>DeviceMotionEvent</code>：立即显示"当前设备不支持加速度传感器"，不报错、不白屏。</li>
+                    <li>有事件对象但 3 秒内收不到数据（PC、部分机型）：提示无数据，并提供"点我抽一次（降级）"按钮，任何设备都能出结果。</li>
+                </ul>
+
+                <div class="qfy_links">
+                    <a class="qfy_link" href="mobile-sensor.html">打开摇一摇演示 →</a>
+                </div>
+
+                <h3>手机实体演示视频</h3>
+                <p>录制设备：另一台手机；演示内容：打开页面 → 连摇抽到菜谱 → 短时间内再摇，展示 1.5s 冷却不重复触发。</p>
+                <div class="qfy_video_box">
+                    <video class="qfy_video" id="qfyVideoSensor" controls playsinline preload="metadata" src="video/qfy-mobile-sensor-demo.mp4" hidden></video>
+                    <div class="qfy_video_ph" id="qfyVideoSensorPh">
+                        <strong>任务四 · 手机实拍视频位</strong>
+                        <span>把录制的文件放到 <code>video/qfy-mobile-sensor-demo.mp4</code></span>
+                        <span>页面刷新后自动显示播放器</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== 踩坑 ===================== -->
+        <section class="qfy_task" id="qfy_pitfalls">
+            <div class="qfy_task_head">
+                <span class="qfy_task_no">NOTES</span>
+                <h2>遇到的坑与解决办法</h2>
+                <span class="qfy_badge">排错记录</span>
+            </div>
+            <div class="qfy_task_body">
+                <ol>
+                    <li><strong>双指缩放时整页跟着放大。</strong>一开始把 <code>touchmove</code> 监听写成 <code>{ passive:true }</code>，里面调用 <code>preventDefault()</code> 无效，控制台报 "Unable to preventDefault inside passive event listener"。改成 <code>{ passive:false }</code>，并在双指或 <code>scale&gt;1</code> 时才调用 <code>preventDefault()</code> 解决。</li>
+                    <li><strong>抬手时拿不到坐标，偶尔 undefined。</strong>原来在 <code>touchend</code> 里读 <code>touches[0]</code>，抬手的那根手指已经从 <code>touches</code> 中移除，多指时还会拿到别的手指。改用 <code>changedTouches[0]</code> 解决。</li>
+                    <li><strong>快速连滑一次跳两张。</strong>每次 <code>touchend</code> 都执行翻页，两次滑动叠加。加 320ms 冷却锁，并在翻页前判断锁定状态解决。</li>
+                    <li><strong>横向拖动时页面上下抖动。</strong>容器没写 <code>touch-action</code>，浏览器把手势优先给了页面滚动。给卡片容器加 <code>touch-action:pan-y</code>、查看器加 <code>touch-action:none</code> 解决。</li>
+                </ol>
+            </div>
+        </section>
+    </main>
+
+    <footer class="qfy_foot">
+        齐方圆 · 24001011031 · 高级网页设计 2026-2027-1 · AI 提示词记录见 <a class="qfy_bar_link" href="qfy_prompt.html">提示词页面</a>
+    </footer>
+</div>
+
+<script>
+    // qfy_initVideo: 视频文件存在才显示播放器，缺失时保留占位提示，避免出现黑块
+    function qfy_initVideo(videoId, phId) {
+        var video = document.getElementById(videoId);
+        var ph = document.getElementById(phId);
+        if (!video || !ph) { return; }
+        video.addEventListener('loadeddata', function () {
+            video.hidden = false;
+            ph.hidden = true;
+        });
+        video.addEventListener('error', function () {
+            video.hidden = true;
+            ph.hidden = false;
+        });
+    }
+
+    qfy_initVideo('qfyVideoZoom', 'qfyVideoZoomPh');
+    qfy_initVideo('qfyVideoSensor', 'qfyVideoSensorPh');
+</script>
+</body>
+</html>

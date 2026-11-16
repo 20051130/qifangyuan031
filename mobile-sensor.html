@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+  作者：齐方圆
+  学号：24001011031
+  建立时间：2026-11-16
+  使用模型：DeepSeek-V4.1-Flash
+  功能名称：任务四 · 摇一摇彩蛋（设备传感器 + 权限 + 降级）
+  功能简介：监听 devicemotion，用 accelerationIncludingGravity 计算三轴合成加速度，
+            超过阈值 18 判定为一次摇动，触发后进入 1.5 秒冷却，随机抽出一道今日菜谱并弹入。
+            iOS 13+ 通过按钮申请 DeviceMotionEvent.requestPermission()；
+            设备不支持或收不到数据时提示"当前设备不支持"，并提供"点我抽一次"的降级按钮，保证不报错不白屏。
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="移动端触摸事件任务四：摇一摇抽今日菜谱，含权限申请与降级">
+<title>任务四 · 摇一摇彩蛋</title>
+<style>
+    :root { --qfy_ink:#2b2233; --qfy_muted:#7b7086; --qfy_paper:#f6f2fc; --qfy_card:#ffffff; --qfy_line:#e6def2; --qfy_accent:#9278b9; --qfy_dark:#151022; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; color:var(--qfy_ink); background:var(--qfy_paper); font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.7; }
+    body::before { position:fixed; inset:0; z-index:-1; pointer-events:none; content:""; opacity:.35; background-image:radial-gradient(#ddd3ed .7px,transparent .7px); background-size:18px 18px; }
+    .qfy_page { width:min(560px,100%); margin:0 auto; padding:0 16px 40px; }
+    .qfy_bar { position:sticky; top:0; z-index:10; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 2px; background:rgba(246,242,252,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--qfy_line); }
+    .qfy_bar_link { color:var(--qfy_accent); font-size:.82rem; text-decoration:none; }
+    .qfy_bar_link:active { opacity:.6; }
+    .qfy_bar_title { color:var(--qfy_muted); font-size:.8rem; letter-spacing:.06em; }
+    .qfy_kicker { margin:24px 0 4px; color:var(--qfy_accent); font:bold .72rem/1.2 Arial,sans-serif; letter-spacing:.18em; }
+    h1 { margin:0 0 8px; font-family:Georgia,"Times New Roman",serif; font-size:1.8rem; letter-spacing:-.02em; }
+    .qfy_sub { margin:0 0 16px; color:var(--qfy_muted); font-size:.86rem; }
+
+    .qfy_stage { position:relative; min-height:330px; padding:26px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#ffffff; text-align:center; background:radial-gradient(120% 90% at 50% 0%,#3a2a55 0%,#151022 70%); border-radius:18px; overflow:hidden; box-shadow:6px 8px 0 rgba(146,120,185,.14); }
+    .qfy_stage::after { position:absolute; inset:-40% -20% auto; height:180px; content:""; background:radial-gradient(closest-side,rgba(167,139,250,.24),transparent); }
+    .qfy_phone { position:relative; z-index:1; width:66px; height:104px; margin-bottom:10px; border:2px solid rgba(214,199,241,.8); border-radius:14px; }
+    .qfy_phone::before { position:absolute; top:9px; left:50%; width:20px; height:2px; content:""; background:rgba(214,199,241,.55); transform:translateX(-50%); border-radius:2px; }
+    .qfy_phone::after { position:absolute; right:9px; bottom:9px; width:12px; height:12px; content:""; border:1px solid rgba(214,199,241,.7); border-radius:50%; }
+    .qfy_stage.qfy_shaking .qfy_phone { animation:qfy_shake .5s ease-in-out; }
+    @keyframes qfy_shake {
+        0%,100% { transform:rotate(0deg); }
+        20% { transform:rotate(-9deg); }
+        40% { transform:rotate(8deg); }
+        60% { transform:rotate(-6deg); }
+        80% { transform:rotate(4deg); }
+    }
+    .qfy_stage h2 { position:relative; z-index:1; margin:0 0 4px; font-size:1.1rem; font-weight:600; }
+    .qfy_stage p { position:relative; z-index:1; margin:0; color:#b8a9d4; font-size:.8rem; }
+    .qfy_result { position:relative; z-index:1; width:100%; min-height:104px; margin-top:16px; padding:14px 16px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16); border-radius:12px; }
+    .qfy_result.qfy_pop { animation:qfy_pop .38s cubic-bezier(.22,.8,.36,1.2); }
+    @keyframes qfy_pop {
+        0% { opacity:0; transform:scale(.72) translateY(10px); }
+        62% { opacity:1; transform:scale(1.05) translateY(0); }
+        100% { transform:scale(1); }
+    }
+    .qfy_dish_name { display:block; font-family:Georgia,"Times New Roman",serif; font-size:1.5rem; letter-spacing:.04em; }
+    .qfy_dish_desc { display:block; margin-top:4px; color:#c5b8dd; font-size:.78rem; }
+    .qfy_result_idle { color:#9b8cb8; font-size:.84rem; }
+    .qfy_force { display:block; margin-top:10px; color:#8e7fae; font:12px/1.6 Consolas,monospace; }
+
+    .qfy_controls { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    .qfy_btn { flex:1 1 auto; padding:11px 16px; color:#ffffff; font-size:.84rem; font-family:inherit; background:var(--qfy_accent); border:0; border-radius:999px; }
+    .qfy_btn.qfy_ghost { color:var(--qfy_accent); background:#ffffff; border:1px solid #cdbde6; }
+    .qfy_btn:active { transform:scale(.98); }
+    .qfy_btn[hidden] { display:none; }
+    .qfy_warn { margin-top:12px; padding:10px 14px; color:#a5482a; font-size:.8rem; background:#fff9f6; border:1px dashed #e2bfb2; border-radius:10px; }
+    .qfy_warn[hidden] { display:none; }
+
+    .qfy_panel { margin-top:24px; padding:16px 18px; background:var(--qfy_card); border:1px solid var(--qfy_line); border-radius:14px; }
+    .qfy_panel h2 { margin:0 0 8px; font-size:1rem; }
+    .qfy_panel h3 { margin:14px 0 6px; font-size:.9rem; }
+    .qfy_panel p { margin:0 0 6px; color:var(--qfy_muted); font-size:.84rem; }
+    .qfy_panel ul { margin:0; padding-left:18px; color:var(--qfy_muted); font-size:.84rem; }
+    .qfy_panel li { margin-bottom:4px; }
+    .qfy_panel code { padding:1px 6px; color:#6f56a0; background:#f0eafb; border-radius:5px; font-family:Consolas,monospace; font-size:.86em; }
+
+    .qfy_video_box { margin-top:16px; background:var(--qfy_dark); border-radius:14px; overflow:hidden; }
+    .qfy_video { display:block; width:100%; max-height:70vh; background:#000000; }
+    .qfy_video_ph { display:flex; flex-direction:column; gap:6px; justify-content:center; align-items:center; min-height:190px; padding:24px 20px; color:#cfc6e0; text-align:center; background:repeating-linear-gradient(135deg,#1d1530 0 12px,#181126 12px 24px); }
+    .qfy_video_ph strong { color:#ffffff; font-size:.94rem; font-weight:600; }
+    .qfy_video_ph span { color:#a79cbd; font-size:.78rem; }
+    .qfy_video_ph code { color:#d7c8f5; font-family:Consolas,monospace; }
+
+    .qfy_foot { margin-top:24px; display:flex; gap:12px; font-size:.84rem; }
+    .qfy_foot a { color:var(--qfy_accent); }
+</style>
+</head>
+<body>
+<div class="qfy_page">
+    <header class="qfy_bar">
+        <a class="qfy_bar_link" href="index.html">← 首页</a>
+        <span class="qfy_bar_title">任务四 · 摇一摇彩蛋</span>
+        <a class="qfy_bar_link" href="mobile-homework.html">作业汇总</a>
+    </header>
+
+    <main>
+        <p class="qfy_kicker">DEVICE MOTION · ⭐⭐⭐⭐</p>
+        <h1>摇一摇抽菜谱</h1>
+        <p class="qfy_sub">摇动手机抽今日菜谱。传感器只在真机上可用，电脑打开会自动走降级分支。</p>
+
+        <div class="qfy_stage" id="qfyStage">
+            <div class="qfy_phone" aria-hidden="true"></div>
+            <h2>摇一摇手机，抽今日菜谱</h2>
+            <p id="qfyStatus">等待摇动…（阈值 18 · 冷却 1.5s）</p>
+            <div class="qfy_result" id="qfyResult">
+                <span class="qfy_result_idle" id="qfyIdle">结果会显示在这里</span>
+                <span class="qfy_dish_name" id="qfyDishName" hidden></span>
+                <span class="qfy_dish_desc" id="qfyDishDesc" hidden></span>
+            </div>
+            <span class="qfy_force" id="qfyForce">合成加速度：—</span>
+        </div>
+
+        <div class="qfy_controls">
+            <button class="qfy_btn" id="qfyPermitBtn" type="button" hidden>开启传感器权限</button>
+            <button class="qfy_btn qfy_ghost" id="qfyPickBtn" type="button">点我抽一次（降级）</button>
+        </div>
+        <p class="qfy_warn" id="qfyWarn" hidden></p>
+
+        <section class="qfy_panel">
+            <h2>为什么必须做降级</h2>
+            <ul>
+                <li>传感器事件只在真机、且有权限时才有数据；PC、无权限、旧设备上事件不触发或字段为 <code>null</code>。</li>
+                <li>不写降级分支，页面就是一个"点了没反应"的白屏，用户不知道是坏了还是不支持。</li>
+                <li>iOS 13+ 还要求用户手势触发 <code>DeviceMotionEvent.requestPermission()</code>，直接监听拿不到数据。</li>
+                <li>所以这里三条路：正式摇动 → 申请权限按钮 → "点我抽一次"兜底，任何设备都能出结果。</li>
+            </ul>
+        </section>
+
+        <section class="qfy_panel">
+            <h2>答辩要点：两个加速度的区别</h2>
+            <ul>
+                <li><code>accelerationIncludingGravity</code>：包含重力在内的合力加速度，静止平放时约 <code>9.8</code>，摇动时波动明显，所有设备都能拿到。</li>
+                <li><code>acceleration</code>：已剔除重力的纯运动加速度，静止时接近 <code>0</code>，需要陀螺仪等做重力分离，部分设备返回 <code>null</code>。</li>
+                <li>本页用前者算 <code>√(x²+y²+z²)</code>，阈值 18 就是"重力 9.8 + 摇动增量"的经验值；一次摇动只触发一次靠 1.5s 冷却。</li>
+            </ul>
+        </section>
+
+        <section class="qfy_panel">
+            <h2>手机实体演示视频</h2>
+            <p>用另一台设备录制：① 打开本页 ② 连摇两下抽到菜谱 ③ 再摇一次，展示冷却期间不重复触发。</p>
+            <div class="qfy_video_box">
+                <video class="qfy_video" id="qfyVideo" controls playsinline preload="metadata" src="video/qfy-mobile-sensor-demo.mp4" hidden></video>
+                <div class="qfy_video_ph" id="qfyVideoPh">
+                    <strong>视频位已就绪，等待实拍文件</strong>
+                    <span>把手机录制的 mp4 放到 <code>video/qfy-mobile-sensor-demo.mp4</code></span>
+                    <span>刷新本页即自动显示播放器</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="qfy_foot">
+            <a href="mobile-zoom.html">← 任务三：图片查看器</a>
+            <a href="mobile-homework.html">返回任务汇总 →</a>
+        </div>
+    </main>
+</div>
+
+<script>
+    var qfy_dishList = [
+        { name: '麻婆豆腐', desc: '麻辣烫香酥嫩鲜活，配一碗白饭刚刚好。' },
+        { name: '宫保鸡丁', desc: '荔枝口的酸甜微辣，花生米要最后下锅。' },
+        { name: '兰州拉面', desc: '一清二白三红四绿五黄，汤清面筋。' },
+        { name: '小笼包', desc: '皮薄汁多，先开窗后喝汤。' },
+        { name: '糖醋排骨', desc: '外脆里嫩，酸甜挂汁，冷吃也香。' },
+        { name: '清蒸鲈鱼', desc: '只放姜葱与蒸鱼豉油，吃的是鲜。' }
+    ];
+
+    var qfy_threshold = 18;      // 合成加速度阈值（含重力约 9.8）
+    var qfy_cooldown = 1500;     // 触发后的冷却时间
+    var qfy_lastShake = 0;       // 上次触发时间
+    var qfy_motionBound = false; // 是否已绑定 devicemotion
+    var qfy_gotData = false;     // 是否真的收到过传感器数据
+    var qfy_lastIndex = -1;      // 上一次抽到的菜，避免连续重复
+
+    var qfy_stage = document.getElementById('qfyStage');
+    var qfy_status = document.getElementById('qfyStatus');
+    var qfy_result = document.getElementById('qfyResult');
+    var qfy_idle = document.getElementById('qfyIdle');
+    var qfy_dishName = document.getElementById('qfyDishName');
+    var qfy_dishDesc = document.getElementById('qfyDishDesc');
+    var qfy_force = document.getElementById('qfyForce');
+    var qfy_warn = document.getElementById('qfyWarn');
+    var qfy_permitBtn = document.getElementById('qfyPermitBtn');
+    var qfy_pickBtn = document.getElementById('qfyPickBtn');
+
+    // qfy_showWarn: 显示降级提示（设备不支持 / 无数据 / 无权限）
+    function qfy_showWarn(text) {
+        qfy_warn.textContent = text;
+        qfy_warn.hidden = false;
+    }
+
+    // qfy_pick: 随机抽一道菜并播放弹入动画，排除上一次的结果
+    function qfy_pick() {
+        var i = Math.floor(Math.random() * qfy_dishList.length);
+        if (i === qfy_lastIndex) { i = (i + 1) % qfy_dishList.length; }
+        qfy_lastIndex = i;
+
+        qfy_idle.hidden = true;
+        qfy_dishName.hidden = false;
+        qfy_dishDesc.hidden = false;
+        qfy_dishName.textContent = '今日菜谱 · ' + qfy_dishList[i].name;
+        qfy_dishDesc.textContent = qfy_dishList[i].desc;
+
+        // 重新触发动画：先移除类，强制重排后再加回来
+        qfy_result.className = 'qfy_result';
+        void qfy_result.offsetWidth;
+        qfy_result.className = 'qfy_result qfy_pop';
+
+        qfy_stage.className = 'qfy_stage';
+        void qfy_stage.offsetWidth;
+        qfy_stage.className = 'qfy_stage qfy_shaking';
+        setTimeout(function () { qfy_stage.className = 'qfy_stage'; }, 520);
+    }
+
+    // qfy_isIOS: 判断是否 iOS（iPadOS 桌面版 UA 用 Mac + 触点数识别），只有 iOS 需要手势申请权限
+    function qfy_isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    // qfy_onMotion: 合成加速度过阈值即抽奖，冷却期内的摇动直接忽略
+    function qfy_onMotion(e) {
+        var a = e.accelerationIncludingGravity;
+        if (!a || typeof a.x !== 'number' || typeof a.y !== 'number' || typeof a.z !== 'number') { return; }
+        qfy_gotData = true;
+
+        var force = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+        qfy_force.textContent = '合成加速度：' + force.toFixed(1) + ' m/s²';
+
+        var now = Date.now();
+        if (force > qfy_threshold && now - qfy_lastShake > qfy_cooldown) {
+            qfy_lastShake = now;
+            qfy_pick();
+            qfy_status.textContent = '已摇到！1.5 秒冷却中…';
+            setTimeout(function () {
+                qfy_status.textContent = '冷却结束，可以再摇一次';
+            }, qfy_cooldown);
+        }
+    }
+
+    // qfy_bindMotion: 绑定事件；3 秒内收不到数据就提示不支持并走降级
+    function qfy_bindMotion() {
+        if (qfy_motionBound) { return; }
+        qfy_motionBound = true;
+        window.addEventListener('devicemotion', qfy_onMotion);
+        qfy_status.textContent = '已开始监听传感器，摇一摇试试';
+        setTimeout(function () {
+            if (!qfy_gotData) {
+                qfy_status.textContent = '没有收到传感器数据';
+                qfy_showWarn('当前设备不支持或没有传感器数据，请用手机打开；也可以点下面的按钮直接抽一次。');
+            }
+        }, 3000);
+    }
+
+    // qfy_init: 判断支持情况与 iOS 权限分支
+    function qfy_init() {
+        if (!('DeviceMotionEvent' in window)) {
+            qfy_status.textContent = '当前设备不支持传感器';
+            qfy_showWarn('当前设备不支持加速度传感器，请用手机打开；点击"点我抽一次"也能直接看效果。');
+            return;
+        }
+        // iOS 13+ 必须在用户手势里申请权限；其它浏览器（含桌面 Chrome/Edge）直接监听
+        if (qfy_isIOS() && typeof DeviceMotionEvent.requestPermission === 'function') {
+            qfy_permitBtn.hidden = false;
+            qfy_status.textContent = 'iOS 需要先授权，点上方按钮开启';
+            return;
+        }
+        qfy_bindMotion();
+    }
+
+    // qfy_onPermit: iOS 权限申请按钮：成功才绑定传感器，失败走降级
+    function qfy_onPermit() {
+        DeviceMotionEvent.requestPermission().then(function (state) {
+            if (state === 'granted') {
+                qfy_permitBtn.hidden = true;
+                qfy_bindMotion();
+            } else {
+                qfy_showWarn('未获得传感器权限，点击"点我抽一次"继续体验。');
+            }
+        }).catch(function () {
+            qfy_showWarn('权限申请失败，点击"点我抽一次"继续体验。');
+        });
+    }
+
+    // qfy_initVideo: 视频文件存在才显示播放器，缺失时保留占位提示
+    function qfy_initVideo() {
+        var video = document.getElementById('qfyVideo');
+        var ph = document.getElementById('qfyVideoPh');
+        video.addEventListener('loadeddata', function () {
+            video.hidden = false;
+            ph.hidden = true;
+        });
+        video.addEventListener('error', function () {
+            video.hidden = true;
+            ph.hidden = false;
+        });
+    }
+
+    qfy_permitBtn.addEventListener('click', qfy_onPermit);
+    qfy_pickBtn.addEventListener('click', function () {
+        qfy_pick();
+        qfy_status.textContent = '已为你手动抽一次';
+    });
+    qfy_init();
+    qfy_initVideo();
+</script>
+</body>
+</html>
