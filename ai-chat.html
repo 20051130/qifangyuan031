@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!--
+  作者：齐方圆
+  学号：24001011031
+  建立时间：2026-11-23
+  使用模型：DeepSeek-V4.1-Flash（本页 AI 能力来自硅基流动 SiliconFlow）
+  功能名称：基本 AI 应用 · AI 聊天
+  功能简介：调用硅基流动 OpenAI 兼容接口 /v1/chat/completions 实现流式对话。
+            支持多轮上下文、模型切换、流式逐字输出、停止生成、清空对话、
+            密钥本地保存（localStorage）以及 401/429/网络错误的中文提示。
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="基于硅基流动 API 的基本 AI 聊天应用：流式对话、多轮上下文、模型切换">
+<title>AI 聊天 · 硅基流动</title>
+<style>
+    :root { --qfy_ink:#2b2233; --qfy_muted:#7b7086; --qfy_paper:#f6f2fc; --qfy_card:#ffffff; --qfy_line:#e6def2; --qfy_accent:#9278b9; --qfy_accent_dark:#6f56a0; --qfy_dark:#151022; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; min-height:100vh; color:var(--qfy_ink); background:var(--qfy_paper); font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.7; }
+    body::before { position:fixed; inset:0; z-index:-1; pointer-events:none; content:""; opacity:.35; background-image:radial-gradient(#ddd3ed .7px,transparent .7px); background-size:18px 18px; }
+    .qfy_page { width:min(760px,100%); margin:0 auto; padding:0 16px 36px; }
+    .qfy_bar { position:sticky; top:0; z-index:20; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 2px; background:rgba(246,242,252,.94); backdrop-filter:blur(6px); border-bottom:1px solid var(--qfy_line); }
+    .qfy_bar_link { color:var(--qfy_accent); font-size:.82rem; text-decoration:none; }
+    .qfy_bar_title { color:var(--qfy_muted); font-size:.78rem; letter-spacing:.08em; }
+    .qfy_kicker { margin:22px 0 4px; color:var(--qfy_accent); font:bold .72rem/1.2 Arial,sans-serif; letter-spacing:.18em; }
+    h1 { margin:0 0 6px; font-family:Georgia,"Times New Roman",serif; font-size:1.85rem; letter-spacing:-.02em; }
+    .qfy_sub { margin:0 0 16px; color:var(--qfy_muted); font-size:.85rem; }
+
+    .qfy_chat { display:flex; flex-direction:column; background:var(--qfy_card); border:1px solid var(--qfy_line); border-radius:16px; box-shadow:6px 8px 0 rgba(146,120,185,.1); overflow:hidden; }
+    .qfy_chat_top { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--qfy_line); background:linear-gradient(135deg,#ffffff,#f6f1fd); }
+    .qfy_select { flex:1 1 auto; min-width:0; padding:7px 10px; color:var(--qfy_ink); font:inherit; font-size:.8rem; background:#ffffff; border:1px solid var(--qfy_line); border-radius:8px; }
+    .qfy_mini { flex:0 0 auto; padding:7px 12px; color:var(--qfy_accent_dark); font:inherit; font-size:.78rem; background:#ffffff; border:1px solid #d8cceb; border-radius:8px; }
+    .qfy_mini:active { transform:scale(.97); }
+
+    .qfy_key_panel { padding:12px; background:#faf7fe; border-bottom:1px solid var(--qfy_line); }
+    .qfy_key_panel[hidden] { display:none; }
+    .qfy_key_row { display:flex; gap:8px; }
+    .qfy_key_input { flex:1 1 auto; min-width:0; padding:8px 10px; font:inherit; font-size:.8rem; background:#ffffff; border:1px solid var(--qfy_line); border-radius:8px; }
+    .qfy_key_tip { margin:6px 0 0; color:var(--qfy_muted); font-size:.72rem; }
+
+    .qfy_msgs { display:flex; flex-direction:column; gap:12px; height:min(58vh,480px); min-height:300px; padding:16px 14px; overflow-y:auto; background:#fdfcff; -webkit-overflow-scrolling:touch; }
+    .qfy_msg { display:flex; flex-direction:column; max-width:88%; }
+    .qfy_msg_user { align-self:flex-end; align-items:flex-end; }
+    .qfy_msg_ai { align-self:flex-start; align-items:flex-start; }
+    .qfy_who { margin-bottom:3px; color:var(--qfy_muted); font-size:.7rem; letter-spacing:.06em; }
+    .qfy_bubble { padding:10px 13px; font-size:.87rem; white-space:pre-wrap; word-break:break-word; border-radius:12px; }
+    .qfy_msg_user .qfy_bubble { color:#ffffff; background:linear-gradient(135deg,#8d74b8,#6f56a0); border-bottom-right-radius:4px; }
+    .qfy_msg_ai .qfy_bubble { color:var(--qfy_ink); background:#ffffff; border:1px solid var(--qfy_line); border-bottom-left-radius:4px; }
+    .qfy_msg_ai.qfy_error .qfy_bubble { color:#a5482a; background:#fff9f6; border-color:#e2bfb2; }
+    .qfy_dots { display:inline-flex; gap:4px; align-items:center; height:1.2em; }
+    .qfy_dots i { width:6px; height:6px; background:#b9a7d6; border-radius:50%; animation:qfy_blink 1s infinite; }
+    .qfy_dots i:nth-child(2) { animation-delay:.18s; }
+    .qfy_dots i:nth-child(3) { animation-delay:.36s; }
+    @keyframes qfy_blink { 0%,80%,100% { opacity:.25; transform:translateY(0); } 40% { opacity:1; transform:translateY(-2px); } }
+
+    .qfy_composer { display:flex; gap:8px; align-items:flex-end; padding:10px 12px; border-top:1px solid var(--qfy_line); background:#ffffff; }
+    .qfy_input { flex:1 1 auto; min-height:40px; max-height:112px; padding:9px 12px; font:inherit; font-size:.87rem; line-height:1.5; color:var(--qfy_ink); background:#faf8fe; border:1px solid var(--qfy_line); border-radius:10px; resize:none; outline:none; }
+    .qfy_input:focus { border-color:var(--qfy_accent); background:#ffffff; }
+    .qfy_send { flex:0 0 auto; padding:10px 18px; color:#ffffff; font:inherit; font-size:.84rem; background:var(--qfy_accent); border:0; border-radius:10px; }
+    .qfy_send:disabled { opacity:.5; }
+    .qfy_stop { flex:0 0 auto; padding:10px 14px; color:#a5482a; font:inherit; font-size:.84rem; background:#fff4ef; border:1px solid #e8c7b8; border-radius:10px; }
+    .qfy_stop[hidden] { display:none; }
+
+    .qfy_panel { margin-top:22px; padding:16px 18px; background:var(--qfy_card); border:1px solid var(--qfy_line); border-radius:14px; }
+    .qfy_panel h2 { margin:0 0 8px; font-size:.98rem; }
+    .qfy_panel ul { margin:0; padding-left:18px; color:var(--qfy_muted); font-size:.83rem; }
+    .qfy_panel li { margin-bottom:5px; }
+    .qfy_panel code { padding:1px 6px; color:#6f56a0; background:#f0eafb; border-radius:5px; font-family:Consolas,monospace; font-size:.86em; }
+    .qfy_warn { margin-top:14px; padding:10px 14px; color:#7a5f2a; font-size:.78rem; background:#fffaf0; border:1px dashed #e4d3ac; border-radius:10px; }
+    .qfy_foot { margin-top:22px; color:var(--qfy_muted); font-size:.78rem; }
+</style>
+</head>
+<body>
+<div class="qfy_page">
+    <header class="qfy_bar">
+        <a class="qfy_bar_link" href="index.html">← 返回首页</a>
+        <span class="qfy_bar_title">AI CHAT · 硅基流动</span>
+        <a class="qfy_bar_link" href="qfy_prompt.html">提示词记录</a>
+    </header>
+
+    <main>
+        <p class="qfy_kicker">SILICONFLOW API · AI CHAT</p>
+        <h1>和 AI 聊聊</h1>
+        <p class="qfy_sub">调用硅基流动 <code>/v1/chat/completions</code> 的流式对话：支持多轮上下文、切换模型、随时停止。</p>
+
+        <div class="qfy_chat">
+            <div class="qfy_chat_top">
+                <select class="qfy_select" id="qfyModel" aria-label="选择模型">
+                    <option value="deepseek-ai/DeepSeek-V4.1-Flash">DeepSeek-V4.1-Flash（默认）</option>
+                    <option value="deepseek-ai/DeepSeek-V3.2">DeepSeek-V3.2</option>
+                    <option value="Qwen/Qwen3.5-27B">Qwen3.5-27B</option>
+                    <option value="zai-org/GLM-5.3">GLM-5.3</option>
+                </select>
+                <button class="qfy_mini" id="qfyKeyBtn" type="button">密钥</button>
+                <button class="qfy_mini" id="qfyClearBtn" type="button">清空</button>
+            </div>
+
+            <div class="qfy_key_panel" id="qfyKeyPanel" hidden>
+                <div class="qfy_key_row">
+                    <input class="qfy_key_input" id="qfyKeyInput" type="password" placeholder="sk-..." autocomplete="off">
+                    <button class="qfy_mini" id="qfyKeySave" type="button">保存</button>
+                </div>
+                <p class="qfy_key_tip" id="qfyKeyTip">密钥只保存在本机浏览器 localStorage，不会上传到别处。</p>
+            </div>
+
+            <div class="qfy_msgs" id="qfyMsgs" aria-live="polite">
+                <div class="qfy_msg qfy_msg_ai">
+                    <span class="qfy_who">AI</span>
+                    <div class="qfy_bubble">你好，我是接在硅基流动上的聊天助手。问我点什么吧，比如「用三句话解释触摸事件」。Enter 发送，Shift+Enter 换行。</div>
+                </div>
+            </div>
+
+            <div class="qfy_composer">
+                <textarea class="qfy_input" id="qfyInput" rows="1" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）"></textarea>
+                <button class="qfy_stop" id="qfyStopBtn" type="button" hidden>停止</button>
+                <button class="qfy_send" id="qfySendBtn" type="button">发送</button>
+            </div>
+        </div>
+
+        <section class="qfy_panel">
+            <h2>这个页面用了什么</h2>
+            <ul>
+                <li>请求地址：<code>POST https://api.siliconflow.cn/v1/chat/completions</code>，OpenAI 兼容格式。</li>
+                <li>流式输出：<code>stream: true</code>，用 <code>fetch</code> 读 <code>ReadableStream</code>，逐行解析 <code>data:</code> 里的 <code>delta.content</code>。</li>
+                <li>多轮上下文：每次把完整 <code>messages</code> 数组发回去，包含系统提示和历史问答。</li>
+                <li>异常处理：401 提示密钥无效、429 提示额度或频率受限、网络错误提示检查网络，气泡内直接显示原因。</li>
+                <li>停止生成：<code>AbortController</code> 中断请求，已输出的内容保留。</li>
+            </ul>
+            <p class="qfy_warn">课堂演示用：页面内置了演示密钥，公开部署后任何人都能看到。正式使用时请点「密钥」换成自己的，或改用后端代理转发，避免密钥泄露。</p>
+        </section>
+
+        <p class="qfy_foot">齐方圆 · 24001011031 · 高级网页设计 · AI 应用实践</p>
+    </main>
+</div>
+
+<script>
+    // 硅基流动接口配置：OpenAI 兼容地址与默认模型
+    var QFY_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+    var QFY_STORAGE_KEY = 'qfy_siliconflow_key';
+    var QFY_DEMO_KEY = 'sk-tbydhgulmzlkombipwpquqatheaghpuyahildcupljvfbfab';
+
+    // 多轮对话上下文：system 设定角色，后续追加 user / assistant
+    var qfy_messages = [
+        { role: 'system', content: '你是一个乐于助人的中文 AI 助手，回答简洁准确，必要时用列表分点。' }
+    ];
+    var qfy_abort = null;   // 当前请求的 AbortController
+    var qfy_busy = false;   // 是否正在生成
+
+    var qfy_msgs = document.getElementById('qfyMsgs');
+    var qfy_input = document.getElementById('qfyInput');
+    var qfy_sendBtn = document.getElementById('qfySendBtn');
+    var qfy_stopBtn = document.getElementById('qfyStopBtn');
+    var qfy_model = document.getElementById('qfyModel');
+    var qfy_keyPanel = document.getElementById('qfyKeyPanel');
+    var qfy_keyInput = document.getElementById('qfyKeyInput');
+    var qfy_keyTip = document.getElementById('qfyKeyTip');
+
+    // qfy_getKey: 优先取本机保存的密钥，没有则用内置演示密钥
+    function qfy_getKey() {
+        try {
+            return localStorage.getItem(QFY_STORAGE_KEY) || QFY_DEMO_KEY;
+        } catch (e) {
+            return QFY_DEMO_KEY;
+        }
+    }
+
+    // qfy_addBubble: 插入一条消息气泡，role 为 user / ai，返回气泡元素
+    function qfy_addBubble(role, text) {
+        var wrap = document.createElement('div');
+        wrap.className = 'qfy_msg ' + (role === 'user' ? 'qfy_msg_user' : 'qfy_msg_ai');
+        var who = document.createElement('span');
+        who.className = 'qfy_who';
+        who.textContent = role === 'user' ? '我' : 'AI';
+        var bubble = document.createElement('div');
+        bubble.className = 'qfy_bubble';
+        bubble.textContent = text || '';
+        wrap.appendChild(who);
+        wrap.appendChild(bubble);
+        qfy_msgs.appendChild(wrap);
+        qfy_scrollToBottom();
+        return bubble;
+    }
+
+    // qfy_scrollToBottom: 每次输出后让消息区滚到最新一条
+    function qfy_scrollToBottom() {
+        qfy_msgs.scrollTop = qfy_msgs.scrollHeight;
+    }
+
+    // qfy_showTyping: 生成中显示三个跳动小圆点
+    function qfy_showTyping(bubble) {
+        bubble.innerHTML = '<span class="qfy_dots"><i></i><i></i><i></i></span>';
+    }
+
+    // qfy_setBusy: 切换发送 / 停止按钮状态，防止重复提交
+    function qfy_setBusy(state) {
+        qfy_busy = state;
+        qfy_sendBtn.disabled = state;
+        qfy_sendBtn.textContent = state ? '生成中…' : '发送';
+        qfy_stopBtn.hidden = !state;
+    }
+
+    // qfy_errorText: 把 HTTP 状态码翻译成能看懂的中文提示
+    function qfy_errorText(status, data) {
+        var detail = (data && (data.message || (data.error && data.error.message))) || '';
+        if (status === 401) { return '密钥无效或已失效（401）。请点「密钥」换一个再试。' + (detail ? '\n' + detail : ''); }
+        if (status === 403) { return '没有访问权限（403）。检查密钥权限或模型是否可用。' + (detail ? '\n' + detail : ''); }
+        if (status === 429) { return '请求太频繁或额度不足（429），稍后再试。' + (detail ? '\n' + detail : ''); }
+        if (status >= 500) { return '服务端暂时出错（' + status + '），请稍后重试。' + (detail ? '\n' + detail : ''); }
+        return '请求失败（' + status + '）。' + (detail ? '\n' + detail : '');
+    }
+
+    // qfy_stream: 读取 SSE 流，把 delta.content 逐段拼到气泡里
+    async function qfy_stream(response, bubble) {
+        var reader = response.body.getReader();
+        var decoder = new TextDecoder('utf-8');
+        var buffer = '';
+        var full = '';
+
+        while (true) {
+            var chunk = await reader.read();
+            if (chunk.done) { break; }
+            buffer += decoder.decode(chunk.value, { stream: true });
+            var lines = buffer.split('\n');
+            buffer = lines.pop();                 // 最后一段可能不完整，留到下一轮
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line || line.indexOf('data:') !== 0) { continue; }
+                var payload = line.slice(5).trim();
+                if (payload === '[DONE]') { return full; }
+                try {
+                    var obj = JSON.parse(payload);
+                    var delta = obj.choices && obj.choices[0] && obj.choices[0].delta;
+                    var piece = delta && delta.content;
+                    if (piece) {
+                        full += piece;
+                        bubble.textContent = full;
+                        qfy_scrollToBottom();
+                    }
+                } catch (e) {
+                    // 单行解析失败就跳过，不影响整段输出
+                }
+            }
+        }
+        return full;
+    }
+
+    // qfy_send: 追加用户消息 → 调接口 → 流式渲染 → 写回上下文
+    async function qfy_send() {
+        var text = qfy_input.value.trim();
+        if (!text || qfy_busy) { return; }
+
+        qfy_input.value = '';
+        qfy_input.style.height = 'auto';
+        qfy_addBubble('user', text);
+        qfy_messages.push({ role: 'user', content: text });
+
+        var bubble = qfy_addBubble('ai', '');
+        qfy_showTyping(bubble);
+        qfy_setBusy(true);
+
+        qfy_abort = new AbortController();
+        var answer = '';
+        try {
+            var res = await fetch(QFY_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + qfy_getKey()
+                },
+                body: JSON.stringify({
+                    model: qfy_model.value,
+                    messages: qfy_messages,
+                    stream: true,
+                    temperature: 0.7,
+                    max_tokens: 1024
+                }),
+                signal: qfy_abort.signal
+            });
+
+            if (!res.ok) {
+                var errData = null;
+                try { errData = await res.json(); } catch (e2) { }
+                bubble.parentElement.className = 'qfy_msg qfy_msg_ai qfy_error';
+                bubble.textContent = qfy_errorText(res.status, errData);
+                qfy_messages.pop();               // 失败时撤回这条用户消息，保持上下文干净
+                return;
+            }
+
+            if (res.body && typeof res.body.getReader === 'function') {
+                answer = await qfy_stream(res, bubble);
+            } else {
+                var data = await res.json();      // 不支持流式时的兜底
+                answer = data.choices[0].message.content || '';
+                bubble.textContent = answer;
+            }
+
+            if (answer) {
+                qfy_messages.push({ role: 'assistant', content: answer });
+            } else {
+                bubble.textContent = '（没有收到内容，换个模型或再试一次）';
+                qfy_messages.pop();
+            }
+        } catch (err) {
+            if (err && err.name === 'AbortError') {
+                bubble.textContent = (bubble.textContent || '') + '\n\n[已停止生成]';
+                if (answer) { qfy_messages.push({ role: 'assistant', content: answer }); }
+            } else {
+                bubble.parentElement.className = 'qfy_msg qfy_msg_ai qfy_error';
+                bubble.textContent = '网络请求失败：' + (err.message || err) + '\n请检查网络，或确认接口地址能否访问。';
+                qfy_messages.pop();
+            }
+        } finally {
+            qfy_setBusy(false);
+            qfy_abort = null;
+            qfy_scrollToBottom();
+            qfy_input.focus();
+        }
+    }
+
+    // qfy_stop: 中断正在进行的生成
+    function qfy_stop() {
+        if (qfy_abort) { qfy_abort.abort(); }
+    }
+
+    // qfy_clear: 清空界面与上下文，只保留 system 设定
+    function qfy_clear() {
+        if (qfy_busy) { qfy_stop(); }
+        qfy_messages = qfy_messages.slice(0, 1);
+        qfy_msgs.innerHTML = '';
+        qfy_addBubble('ai', '对话已清空，我们重新开始吧。');
+    }
+
+    // qfy_saveKey: 把新密钥写入 localStorage，下次打开自动使用
+    function qfy_saveKey() {
+        var key = qfy_keyInput.value.trim();
+        if (!key) {
+            qfy_keyTip.textContent = '密钥不能为空。';
+            return;
+        }
+        try {
+            localStorage.setItem(QFY_STORAGE_KEY, key);
+            qfy_keyTip.textContent = '已保存到本机浏览器，下一次请求生效。';
+        } catch (e) {
+            qfy_keyTip.textContent = '浏览器禁用了 localStorage，本次仅在当前页面有效。';
+        }
+        qfy_keyPanel.hidden = true;
+    }
+
+    // qfy_toggleKeyPanel: 展开/收起密钥面板，并回填当前密钥
+    function qfy_toggleKeyPanel() {
+        qfy_keyPanel.hidden = !qfy_keyPanel.hidden;
+        if (!qfy_keyPanel.hidden) {
+            qfy_keyInput.value = qfy_getKey();
+            qfy_keyInput.focus();
+        }
+    }
+
+    // qfy_onKeydown: Enter 发送、Shift+Enter 换行，并让输入框自动增高
+    function qfy_onKeydown(e) {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+            e.preventDefault();
+            qfy_send();
+        }
+    }
+
+    // qfy_autoGrow: 输入框随内容长高，最多到 CSS 的 max-height
+    function qfy_autoGrow() {
+        qfy_input.style.height = 'auto';
+        qfy_input.style.height = Math.min(qfy_input.scrollHeight, 112) + 'px';
+    }
+
+    qfy_sendBtn.addEventListener('click', qfy_send);
+    qfy_stopBtn.addEventListener('click', qfy_stop);
+    document.getElementById('qfyClearBtn').addEventListener('click', qfy_clear);
+    document.getElementById('qfyKeyBtn').addEventListener('click', qfy_toggleKeyPanel);
+    document.getElementById('qfyKeySave').addEventListener('click', qfy_saveKey);
+    qfy_input.addEventListener('keydown', qfy_onKeydown);
+    qfy_input.addEventListener('input', qfy_autoGrow);
+</script>
+</body>
+</html>
