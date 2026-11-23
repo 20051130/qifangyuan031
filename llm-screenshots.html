@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<!--
+  作者：齐方圆
+  建立时间：2026-11-23
+  使用模型：Kimi-K3.1-Pro
+  功能名称：大模型课堂实践截图展示
+  功能简介：集中展示大模型课堂实践的五张本地运行截图，涵盖 AI 客服切换、知识库上传问答、图像识别和语音识别四个模块；支持点击查看原图，并提供返回课程首页的入口。
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="大模型课堂实践运行截图：AI 客服、知识库问答、图像识别与语音识别。">
+    <title>大模型课堂实践截图 · 齐方圆</title>
+    <style>
+        :root {
+            --qfy_ink: #292334;
+            --qfy_muted: #756d82;
+            --qfy_paper: #f6f3fa;
+            --qfy_card: #ffffff;
+            --qfy_line: #e4ddeb;
+            --qfy_accent: #8065ad;
+            --qfy_accent_dark: #5f477f;
+            --qfy_dark: #21182e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--qfy_ink);
+            background: var(--qfy_paper);
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            line-height: 1.7;
+        }
+        body::before {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            content: "";
+            opacity: .35;
+            background-image: radial-gradient(#d8cfe5 .7px, transparent .7px);
+            background-size: 18px 18px;
+        }
+        .qfy_bar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--qfy_line);
+            background: rgba(246, 243, 250, .94);
+            backdrop-filter: blur(8px);
+        }
+        .qfy_bar_inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 13px 0;
+        }
+        .qfy_back {
+            color: var(--qfy_accent_dark);
+            font-size: .86rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .qfy_back:hover { text-decoration: underline; }
+        .qfy_bar_label { color: var(--qfy_muted); font-size: .76rem; letter-spacing: .1em; }
+        .qfy_page { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 46px 0 56px; }
+        .qfy_eyebrow { margin: 0 0 8px; color: var(--qfy_accent); font-size: .75rem; font-weight: 700; letter-spacing: .16em; }
+        .qfy_title { margin: 0; font-size: clamp(1.9rem, 5vw, 3.2rem); line-height: 1.25; letter-spacing: -.03em; }
+        .qfy_intro { max-width: 720px; margin: 16px 0 22px; color: var(--qfy_muted); font-size: .95rem; }
+        .qfy_stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+        .qfy_stat { padding: 5px 12px; color: var(--qfy_accent_dark); font-size: .78rem; background: #eee7f5; border: 1px solid #ded3eb; border-radius: 999px; }
+        .qfy_section {
+            margin-top: 24px;
+            padding: clamp(18px, 3vw, 30px);
+            background: var(--qfy_card);
+            border: 1px solid var(--qfy_line);
+            border-radius: 18px;
+            box-shadow: 0 12px 34px rgba(48, 33, 65, .06);
+        }
+        .qfy_section_head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+        .qfy_number {
+            display: grid;
+            flex: 0 0 42px;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            color: #fff;
+            font-size: .86rem;
+            font-weight: 700;
+            background: var(--qfy_accent);
+            border-radius: 12px;
+        }
+        .qfy_section h2 { margin: 0; font-size: 1.18rem; line-height: 1.4; }
+        .qfy_section_head p { margin: 4px 0 0; color: var(--qfy_muted); font-size: .84rem; }
+        .qfy_pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .qfy_figure { margin: 0; }
+        .qfy_shot_link { display: block; overflow: hidden; background: var(--qfy_dark); border: 1px solid #352a43; border-radius: 12px; }
+        .qfy_shot_link img { display: block; width: 100%; height: auto; transition: transform .25s ease, opacity .25s ease; }
+        .qfy_shot_link:hover img { opacity: .92; transform: scale(1.012); }
+        .qfy_figure figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 9px; color: var(--qfy_muted); font-size: .8rem; }
+        .qfy_figure figcaption strong { color: var(--qfy_ink); font-weight: 600; }
+        .qfy_open { flex: 0 0 auto; color: var(--qfy_accent); }
+        .qfy_footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 32px; padding-top: 20px; color: var(--qfy_muted); font-size: .78rem; border-top: 1px solid var(--qfy_line); }
+        @media (max-width: 760px) {
+            .qfy_page { padding-top: 32px; }
+            .qfy_pair { grid-template-columns: 1fr; }
+            .qfy_pair .qfy_figure + .qfy_figure { margin-top: 6px; }
+            .qfy_bar_label { display: none; }
+            .qfy_footer { align-items: flex-start; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="qfy_bar" aria-label="页面导航">
+        <div class="qfy_bar_inner">
+            <a class="qfy_back" href="index.html">← 返回课程首页</a>
+            <span class="qfy_bar_label">LLM PRACTICE · SCREENSHOTS</span>
+        </div>
+    </nav>
+
+    <main class="qfy_page">
+        <header>
+            <p class="qfy_eyebrow">AI APPLICATION · CLASSROOM PRACTICE</p>
+            <h1 class="qfy_title">大模型课堂实践截图</h1>
+            <p class="qfy_intro">这里汇总了实践页面在本地运行时的五张截图，记录在线客服、知识库问答、图像识别与语音识别的实际效果。点击任意截图可在新标签页查看原图。</p>
+            <div class="qfy_stats" aria-label="截图统计">
+                <span class="qfy_stat">4 个实践模块</span>
+                <span class="qfy_stat">5 张运行截图</span>
+                <span class="qfy_stat">2 个客服服务商</span>
+            </div>
+        </header>
+
+        <section class="qfy_section" aria-labelledby="qfy_chat_title">
+            <div class="qfy_section_head">
+                <span class="qfy_number">01</span>
+                <div>
+                    <h2 id="qfy_chat_title">AI 客服切换</h2>
+                    <p>在同一客服界面中切换模型服务商，分别验证硅基流动与七牛的问答效果。</p>
+                </div>
+            </div>
+            <div class="qfy_pair">
+                <figure class="qfy_figure">
+                    <a class="qfy_shot_link" href="img/qfy-llm-01-chat-siliconflow.png" target="_blank" rel="noopener">
+                        <img src="img/qfy-llm-01-chat-siliconflow.png" width="1024" height="590" alt="使用硅基流动服务商的在线客服问答运行截图">
+                    </a>
+                    <figcaption><strong>硅基流动 · 在线客服</strong><span class="qfy_open">点击查看原图 ↗</span></figcaption>
+                </figure>
+                <figure class="qfy_figure">
+                    <a class="qfy_shot_link" href="img/qfy-llm-02-chat-qiniu.png" target="_blank" rel="noopener">
+                        <img src="img/qfy-llm-02-chat-qiniu.png" width="1024" height="592" loading="lazy" alt="切换到七牛服务商后的在线客服问答运行截图">
+                    </a>
+                    <figcaption><strong>七牛 · 在线客服</strong><span class="qfy_open">点击查看原图 ↗</span></figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="qfy_section" aria-labelledby="qfy_rag_title">
+            <div class="qfy_section_head">
+                <span class="qfy_number">02</span>
+                <div>
+                    <h2 id="qfy_rag_title">知识库上传问答</h2>
+                    <p>上传并解析本地文档，展示知识库文件列表、文件类型、大小及切分数量。</p>
+                </div>
+            </div>
+            <figure class="qfy_figure">
+                <a class="qfy_shot_link" href="img/qfy-llm-03-rag.png" target="_blank" rel="noopener">
+                    <img src="img/qfy-llm-03-rag.png" width="1024" height="590" loading="lazy" alt="本地知识库上传、文档解析和文件管理界面截图">
+                </a>
+                <figcaption><strong>RAG · 本地知识库</strong><span class="qfy_open">点击查看原图 ↗</span></figcaption>
+            </figure>
+        </section>
+
+        <section class="qfy_section" aria-labelledby="qfy_vision_title">
+            <div class="qfy_section_head">
+                <span class="qfy_number">03</span>
+                <div>
+                    <h2 id="qfy_vision_title">图像识别</h2>
+                    <p>上传图片后调用视觉大模型，返回对画面主体、场景和细节的文字描述。</p>
+                </div>
+            </div>
+            <figure class="qfy_figure">
+                <a class="qfy_shot_link" href="img/qfy-llm-04-vision.png" target="_blank" rel="noopener">
+                    <img src="img/qfy-llm-04-vision.png" width="1024" height="590" loading="lazy" alt="上传毛绒玩具图片后获得图像识别描述的界面截图">
+                </a>
+                <figcaption><strong>视觉大模型 · 图像描述</strong><span class="qfy_open">点击查看原图 ↗</span></figcaption>
+            </figure>
+        </section>
+
+        <section class="qfy_section" aria-labelledby="qfy_asr_title">
+            <div class="qfy_section_head">
+                <span class="qfy_number">04</span>
+                <div>
+                    <h2 id="qfy_asr_title">语音识别</h2>
+                    <p>上传音频文件并完成识别，页面同步显示音频预览、识别文字和所用模型。</p>
+                </div>
+            </div>
+            <figure class="qfy_figure">
+                <a class="qfy_shot_link" href="img/qfy-llm-05-asr.png" target="_blank" rel="noopener">
+                    <img src="img/qfy-llm-05-asr.png" width="1024" height="590" loading="lazy" alt="上传音频后完成语音识别并显示文字结果的界面截图">
+                </a>
+                <figcaption><strong>qwen-audio · 语音转文字</strong><span class="qfy_open">点击查看原图 ↗</span></figcaption>
+            </figure>
+        </section>
+
+        <footer class="qfy_footer">
+            <span>齐方圆 · 高级网页设计课堂实践</span>
+            <a class="qfy_back" href="index.html">返回课程首页 →</a>
+        </footer>
+    </main>
+</body>
+</html>
